@@ -64,7 +64,6 @@ if (Meteor.isClient) {
                 this.audio.pause();
                 this.audio = null;
             }
-            this.imgFit.stop();
             this.active = false;
         },
         hide: function() {
@@ -117,11 +116,6 @@ if (Meteor.isClient) {
                     self.$img().trigger('doFit');
                 };
                 im.src = path;
-            },
-            stop: function() {
-                var img = this.$img()[0];
-                img.width = 'auto';
-                img.height = 'auto';
             },
             fn: function() {
                 if (!Viewer.active) return;
