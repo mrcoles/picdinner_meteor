@@ -1,0 +1,61 @@
+<head>
+    <title>picDinner!</title>
+    <script src="jquery.history.js"></script>
+</head>
+
+<body>
+    {{> head}}
+    <div id="container">
+        {{> pairs}}
+    </div>
+
+    <!-- Modal -->
+    <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
+        {{> addPair}}
+    </div>
+
+    <div id="view-pair" class="hide" aria-hidden="true">
+        {{> viewPair}}
+    </div>
+</body>
+
+
+<!-- head template -->
+<template name="head">
+    <div id="head">
+        <h1>picDinner!</h1>
+        <a id="add" href="#" onclick="return false">+ add</a>
+    </div>
+</template>
+
+<!-- pairs template -->
+<template name="pairs">
+    <div id="pairs">{{#each pairs}}
+        <a href="/{{_id}}" class="pair" data-id="{{_id}}" data-image="{{image}}" data-audio="{{audio}}"><img src="{{image}}"></a>{{/each}}
+    </div>
+</template>
+
+
+<!-- addPair template -->
+<template name="addPair">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Pair up an image and audio!</h3>
+    </div>
+    <form style="margin:0;padding:0">
+        <div class="modal-body">
+            <input style="width:98%" type="text" name="image" placeholder="URL for image"><br>
+            <input style="width:98%" type="text" name="audio" placeholder="URL for audio">
+            <br><br>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </div>
+    </form>
+</template>
+
+<!-- viewPair template -->
+<template name="viewPair">
+    <img src="">
+</template>

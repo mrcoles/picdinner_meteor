@@ -1,0 +1,150 @@
+/* CSS declarations go here */
+
+html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
+
+@container-max: 980px;
+@container-min: 320px;
+@container-pad: 20px;
+
+@body-bg: #eee;
+@head-bg: #fff;
+@pair-bg: #fff;
+
+@view-z-index: 500;
+@head-ani-z-index: 501;
+
+.transition(@transition) {
+  -webkit-transition: @transition;
+     -moz-transition: @transition;
+       -o-transition: @transition;
+          transition: @transition;
+}
+
+////////////
+
+html, body { background: @body-bg; }
+
+body,h1,a {
+    font: 200 40px/60px "Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: #333;
+}
+
+#head,
+#container {
+    position: relative;
+    margin: 20px auto;
+    max-width: @container-max - (@container-pad * 2);
+    min-width: @container-min - (@container-pad * 2);
+}
+
+#container {
+    padding: 0 @container-pad;
+    margin-bottom: 20px;
+}
+
+#head {
+    position: relative;
+    background: @head-bg;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    overflow: hidden;
+    zoom: 1;
+
+    h1, a {
+        padding: 10px @container-pad;
+    }
+
+    h1 {
+        float: left;
+    }
+
+    a {
+        float: right;
+        background: #333;
+        color: #eee;
+        text-decoration: none;
+        border-left: 4px solid #fff;
+
+        &:hover {
+            background: #0f0;
+            color: #262;
+        }
+
+        &:active {
+            background: #000;
+            color: #fff;
+        }
+    }
+
+    &.trans {
+        .transition(opacity 4s ease-in);
+
+        z-index: @head-ani-z-index;
+
+        >a {
+            display: none;
+        }
+    }
+
+    &.go {
+        opacity: 0;
+    }
+}
+
+#pairs {
+    position: relative;
+    width: 100%;
+    left: @container-pad;
+    overflow: hidden;
+    zoom: 1;
+}
+
+@pair-dim: 140px;
+
+.pair {
+    float: left;
+    border: 4px solid #999;
+    padding: 6px;
+    width: @pair-dim;
+    height: @pair-dim;
+    overflow: hidden;
+    margin: 0 20px 20px 0;
+    text-align: center;
+    line-height: @pair-dim;
+    font-size: 0;
+    background: @pair-bg;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+        border-color: #333;
+    }
+
+    img {
+        max-width: @pair-dim;
+        max-height: @pair-dim;
+        vertical-align: middle;
+    }
+}
+
+#view-pair {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: @view-z-index;
+    background: #111;
+    text-align: center;
+
+    img {
+        bottom: 0;
+        box-shadow: 0 0 10px #000000;
+        left: 0;
+        margin: auto;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
