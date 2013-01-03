@@ -25,7 +25,7 @@ Pairs = new Meteor.Collection('pairs');
 
 if (Meteor.isClient) {
     Template.pairs.pairs = function() {
-        return Pairs.find();
+        return Pairs.find({}, {sort: {"created": -1}});
     };
 
     var Viewer = {
@@ -127,7 +127,7 @@ if (Meteor.isClient) {
 
             if (!audio) { audio = 'song.mp3'; }
 
-            Pairs.insert({image: image, audio: audio});
+            Pairs.insert({image: image, audio: audio, created: (new Date()).toGMTString()});
             $('#add-pair').modal('hide');
         }
     });
