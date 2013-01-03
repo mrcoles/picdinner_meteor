@@ -6,10 +6,17 @@
 //
 // Q. publish and subscribe?
 // A. (for when autopublish is false?)
+//
+// Q. 'click .pair' - this is the db object?
+// A. ???
 
 // Ideas:
 //
+// *   meteor add less and just write in less
+// *   one page app - all files load on one page
+// *   html file is parts: head / body / templates
 // *   change file names so not all the same! app.js / style.css
+// *   find observe pattern on startup
 
 // TODO:
 //
@@ -20,6 +27,10 @@
 // *   thumbs of images... and way to visualize sound?
 // *   social stuff ... top pics, colors for viewing, login, social share?
 // *   navigation to other pictures
+
+// Code club todo
+//
+// *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
 
 Pairs = new Meteor.Collection('pairs');
 
@@ -198,6 +209,8 @@ if (Meteor.isClient) {
                     // NOTE - immediate infdOne on page load
                     // failed to return anything
                     // var p = Pairs.findOne({'_id': id});
+
+                    // what about just using session?
 
                     var handle = Pairs.find({'_id': id}).observe({
                         added: function(pair) {
