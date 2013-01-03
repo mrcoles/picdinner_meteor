@@ -56,6 +56,7 @@ if (Meteor.isClient) {
                         }
                     }
                 });
+                this.imgFit.init();
             }
         },
         stop: function() {
@@ -63,6 +64,7 @@ if (Meteor.isClient) {
                 this.audio.pause();
                 this.audio = null;
             }
+            this.imgFit.stop();
             this.active = false;
         },
         hide: function() {
@@ -85,6 +87,7 @@ if (Meteor.isClient) {
             this.audio = au;
             au.play();
             $v.find('img').attr('src', opts.image);
+            Viewer.imgFit.setImg(opts.image);
             if (pageLoad) {
                 var $h = $('#head').addClass('trans');
                 window.setTimeout(function() {
@@ -96,6 +99,61 @@ if (Meteor.isClient) {
             }
             $v.show();
             this.active = true;
+        },
+        imgFit: {
+            $img: function() {
+                if (!this._$img) {
+                    this._$img = Viewer.$get().find('img');
+                }
+                return this._$img;
+            },
+            setImg: function(path) {
+                this.imgHeight = this.imgWidth = null;
+                var self = this,
+                    im = new Image();
+                im.onload = function() {
+                    self.imgHeight = im.height;
+                    self.imgWidth = im.width;
+                    self.$img().trigger('doFit');
+                };
+                im.src = path;
+            },
+            stop: function() {
+                var img = this.$img()[0];
+                img.width = 'auto';
+                img.height = 'auto';
+            },
+            fn: function() {
+                if (!Viewer.active) return;
+                var hr, wr, r, img,
+                    v = Viewer,
+                    imgHeight = v.imgFit.imgHeight,
+                    imgWidth = v.imgFit.imgWidth,
+                    wH = window.innerHeight,
+                    wW = window.innerWidth;
+                if (imgHeight && imgWidth) {
+                    // if (imgHeight <= wH && imgWidth <= wW) {
+                    //     if (v.imgFitted) {
+                    //         v.imgFitted = false;
+                    //         img = v.imgFit.$img()[0];
+                    //         img.width = 'auto';
+                    //         img.height = 'auto';
+                    //     }
+                    // } else {
+                        hr = wH / imgHeight,
+                        wr = wW / imgWidth;
+                        r = hr < wr ? hr : wr;
+                        img = v.imgFit.$img()[0];
+                        img.width = imgWidth * r;
+                        img.height = imgHeight * r;
+                    // }
+                }
+            },
+            init: function() {
+                var im = Viewer.imgFit;
+                im.$img().on('load doFit', im.fn);
+                $(window).on('resize', im.fn);
+            }
         }
     };
 
