@@ -118,7 +118,7 @@ if (Meteor.isClient) {
 
     Template.addPair.events({
         'submit form': function(e) {
-            //e.preventDefault();
+            e.preventDefault();
             var $form = $(e.target),
                 $image = $form.find('input[name=image]'),
                 $audio = $form.find('input[name=audio]'),
@@ -128,6 +128,7 @@ if (Meteor.isClient) {
             if (!audio) { audio = 'song.mp3'; }
 
             Pairs.insert({image: image, audio: audio});
+            $('#add-pair').modal('hide');
         }
     });
 
