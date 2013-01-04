@@ -35,9 +35,6 @@
 Pairs = new Meteor.Collection('pairs');
 
 if (Meteor.isClient) {
-    Template.pairs.pairs = function() {
-        return Pairs.find({}, {sort: {"created": -1}});
-    };
 
     var Viewer = {
         active: false,
@@ -162,23 +159,18 @@ if (Meteor.isClient) {
         }
     };
 
-    Template.pairs.events({
-        'click .pair': function(e) {
-            // NOTE - `this` seems to be the actual pair object?
-            var H = window.History;
-            if (H.enabled) {
-                e.preventDefault();
-                H.pushState(null, null, '/' + this._id);
-            }
-        }
-    });
-
+    //
+    // Head
+    //
     Template.head.events({
         'click #add': function() {
             $('#add-pair').modal();
         }
     });
 
+    //
+    // Add Pair
+    //
     Template.addPair.events({
         'submit form': function(e) {
             e.preventDefault();
@@ -195,6 +187,101 @@ if (Meteor.isClient) {
         }
     });
 
+    //
+    // Pairs
+    //
+    Template.pairs.pairs = function() {
+        return Pairs.find({}, {sort: {"created": -1}});
+    };
+
+    Template.pairs.events({
+        'click .pair': function(e) {
+            // NOTE - `this` seems to be the actual pair object?
+            var H = window.History;
+            if (H.enabled) {
+                e.preventDefault();
+                H.pushState(null, null, '/' + this._id);
+            }
+        }
+    });
+
+    //
+    // View Pair
+    //
+    var viewer = {
+        active: false,
+        pair: null,
+        audio: null,
+        update: function(pair) {
+            console.log('UPDATE>pair', pair); //REM
+
+            // open
+            if (pair) {
+                if (!this.pair || this.pair._id != pair._id) {
+                    var au = $.extend(new Audio(), {
+                        autoplay: true,
+                        loop: true,
+                        src: pair.audio
+                    });
+                    au.play();
+                    this.audio = au;
+                    this.pair = pair;
+                    $('#view-image').expandImage();
+                    this.active = true;
+                }
+
+            // close
+            } else {
+                if (this.pair) {
+                    this.pair = null;
+                    if (this.audio) {
+                        this.audio.pause();
+                        this.audio = null;
+                    }
+                    $('#view-image').expandImage('clear');
+                }
+                this.active = false;
+            }
+        },
+        toggleAudio: function() {
+            if (this.audio) {
+                this.audio[this.audio.paused ? 'play' : 'pause']();
+            }
+        }
+    };
+
+    Template.viewPair.pair = function() {
+        return Session.get('currentPair');
+    };
+
+    Template.viewPair.rendered = function() {
+        viewer.update(Session.get('currentPair'));
+    };
+
+    Template.viewPair.events({
+        'click': function(e) {
+            if (!$(e.target).filter('img').size()) {
+                Session.set('currentPair', null);
+            }
+        }
+    });
+
+    Meteor.startup(function() {
+        $(window).on('keyup', function(e) {
+            if (viewer.active) {
+                if (e.which == 27) {
+                    Session.set('currentPair', null);
+                } else if (e.which == 32) {
+                    viewer.toggleAudio();
+                }
+            }
+        });
+    });
+
+
+    //
+    // Startup
+    //
     Meteor.startup(function() {
         var H = window.History,
             curStateId = null;
@@ -216,7 +303,9 @@ if (Meteor.isClient) {
                         added: function(pair) {
                             handle && handle.stop();
                             if (curStateId == state.id) {
-                                Viewer.start(pair, pageLoad === true);
+                                console.log('PAIR!', pair); //REM
+                                Session.set('currentPair', pair);
+                                //Viewer.start(pair, pageLoad === true);
                             }
                         }
                     });

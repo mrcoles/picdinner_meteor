@@ -1,6 +1,7 @@
 <head>
     <title>picDinner!</title>
     <script src="jquery.history.js"></script>
+    <script src="jquery.expand-image.js"></script>
 </head>
 
 <body>
@@ -14,9 +15,7 @@
         {{> addPair}}
     </div>
 
-    <div id="view-pair" class="hide" aria-hidden="true">
-        {{> viewPair}}
-    </div>
+    {{> viewPair}}
 </body>
 
 
@@ -57,5 +56,7 @@
 
 <!-- viewPair template -->
 <template name="viewPair">
-    <img src="">
+    <div id="view-pair"{{#unless pair}} class="hide" aria-hidden="true"{{/unless}}>{{#if pair}}
+        <img id="view-image" src="{{pair.image}}" data-audio="{{pair.audio}}">
+    {{/if}}</div>
 </template>

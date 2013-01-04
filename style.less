@@ -128,7 +128,6 @@ body,h1,a {
 }
 
 #view-pair {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -137,6 +136,10 @@ body,h1,a {
     z-index: @view-z-index;
     background: #111;
     text-align: center;
+
+    &.hide {
+        display: none;
+    }
 
     img {
         bottom: 0;
