@@ -32,7 +32,6 @@
 
 // TODO:
 //
-// *   back button bug!
 // *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
 //
 // *   only play music when in foreground
@@ -216,7 +215,7 @@ if (Meteor.isClient) {
                         }
                     });
                 } else {
-                    viewer.update();
+                    Session.set('currentPair', null);
                 }
             }
         }
