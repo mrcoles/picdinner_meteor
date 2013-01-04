@@ -32,6 +32,7 @@
 
 // TODO:
 //
+// *   back button bug!
 // *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
 //
 // *   only play music when in foreground
@@ -201,14 +202,16 @@ if (Meteor.isClient) {
                             if (curStateId == state.id) {
                                 Session.set('currentPair', pair);
 
-                                // animate head
-                                var $h = $('#head').addClass('trans');
-                                Meteor.setTimeout(function() {
-                                    $h.addClass('go');
+                                if (pageLoad === true) {
+                                    // animate head
+                                    var $h = $('#head').addClass('trans');
                                     Meteor.setTimeout(function() {
-                                        $h.removeClass('trans').removeClass('go');
-                                    }, 4000);
-                                }, 500);
+                                        $h.addClass('go');
+                                        Meteor.setTimeout(function() {
+                                            $h.removeClass('trans').removeClass('go');
+                                        }, 4000);
+                                    }, 500);
+                                }
                             }
                         }
                     });
