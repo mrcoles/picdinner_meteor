@@ -8,7 +8,19 @@
 // A. (for when autopublish is false?)
 //
 // Q. 'click .pair' - this is the db object?
-// A. ???
+// A. it's actually the object from the for-loop!
+//
+//    > The handler function receives two arguments: event, an
+//    > object with information about the event, and template,
+//    > a template instance for the template where the handler
+//    > is defined. The handler also receives some additional
+//    > context data in this, depending on the context of the
+//    > current element handling the event. In a Handlebars
+//    > template, an element's context is the Handlebars data
+//    > context where that element occurs, which is set by block
+//    > helpers such as #with and #each.
+//
+
 
 // Ideas:
 //
@@ -20,144 +32,19 @@
 
 // TODO:
 //
+// *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
+//
 // *   only play music when in foreground
 // *   better way to select gifs and music
 // *   extras? crazy backgrounds instead of #111? (text or title? -- too much?)
 // *   image and sound upload
-// *   thumbs of images... and way to visualize sound?
+// *   thumbs of images (via canvas?)... and way to visualize sound?
 // *   social stuff ... top pics, colors for viewing, login, social share?
 // *   navigation to other pictures
-
-// Code club todo
-//
-// *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
 
 Pairs = new Meteor.Collection('pairs');
 
 if (Meteor.isClient) {
-
-    var Viewer = {
-        active: false,
-        $get: function() {
-            if (!this._$elt) {
-                this._$elt = $('#view-pair');
-            }
-            return this._$elt;
-        },
-        init: function() {
-            if (!this._didInit) {
-                this._didInit = true;
-                var self = this;
-                this.$get().click(function(e) {
-                    if (!$(e.target).filter('img').size()) {
-                        self.hide();
-                    }
-                });
-                $(window).keyup(function(e) {
-                    if (self.active) {
-                        if (e.which == 27) {
-                            self.hide();
-                        } else if (e.which == 32) {
-                            if (self.audio) {
-                                self.audio[self.audio.paused ? 'play' : 'pause']();
-                            }
-                        }
-                    }
-                });
-                this.imgFit.init();
-            }
-        },
-        stop: function() {
-            if (this.audio) {
-                this.audio.pause();
-                this.audio = null;
-            }
-            this.active = false;
-        },
-        hide: function() {
-            this.stop();
-            this.$get().hide();
-            var H = window.History, state = H.getState();
-            if (H.enabled && /https?:\/\/[^\/]+\/.+$/.test(state.url)) {
-                H.pushState(null, null, '/');
-            }
-        },
-        start: function(opts, pageLoad) {
-            var $v = this.$get(),
-                au = new Audio();
-            window.opts = opts;
-            this.init();
-            this.stop();
-            au.autoplay = true;
-            au.loop = true;
-            au.src = opts.audio;
-            this.audio = au;
-            au.play();
-            $v.find('img').attr('src', opts.image);
-            Viewer.imgFit.setImg(opts.image);
-            if (pageLoad) {
-                var $h = $('#head').addClass('trans');
-                window.setTimeout(function() {
-                    $h.addClass('go');
-                    window.setTimeout(function() {
-                        $h.removeClass('trans').removeClass('go');
-                    }, 4000);
-                }, 500);
-            }
-            $v.show();
-            this.active = true;
-        },
-        imgFit: {
-            $img: function() {
-                if (!this._$img) {
-                    this._$img = Viewer.$get().find('img');
-                }
-                return this._$img;
-            },
-            setImg: function(path) {
-                this.imgHeight = this.imgWidth = null;
-                var self = this,
-                    im = new Image();
-                im.onload = function() {
-                    self.imgHeight = im.height;
-                    self.imgWidth = im.width;
-                    self.$img().trigger('doFit');
-                };
-                im.src = path;
-            },
-            fn: function() {
-                if (!Viewer.active) return;
-                var hr, wr, r, img,
-                    v = Viewer,
-                    imgHeight = v.imgFit.imgHeight,
-                    imgWidth = v.imgFit.imgWidth,
-                    wH = window.innerHeight,
-                    wW = window.innerWidth;
-                if (imgHeight && imgWidth) {
-                    // if (imgHeight <= wH && imgWidth <= wW) {
-                    //     if (v.imgFitted) {
-                    //         v.imgFitted = false;
-                    //         img = v.imgFit.$img()[0];
-                    //         img.width = 'auto';
-                    //         img.height = 'auto';
-                    //     }
-                    // } else {
-                        hr = wH / imgHeight,
-                        wr = wW / imgWidth;
-                        r = hr < wr ? hr : wr;
-                        img = v.imgFit.$img()[0];
-                        img.width = imgWidth * r;
-                        img.height = imgHeight * r;
-                    // }
-                }
-            },
-            init: function() {
-                var im = Viewer.imgFit;
-                im.$img().on('load doFit', im.fn);
-                $(window).on('resize', im.fn);
-            }
-        }
-    };
 
     //
     // Head
@@ -182,7 +69,11 @@ if (Meteor.isClient) {
 
             if (!audio) { audio = 'song.mp3'; }
 
-            Pairs.insert({image: image, audio: audio, created: (new Date()).toGMTString()});
+            Pairs.insert({
+                image: image,
+                audio: audio,
+                created: (new Date()).toGMTString()
+            });
             $('#add-pair').modal('hide');
         }
     });
@@ -196,7 +87,8 @@ if (Meteor.isClient) {
 
     Template.pairs.events({
         'click .pair': function(e) {
-            // NOTE - `this` seems to be the actual pair object?
+            // NOTE - `this` is actually "pair" from the each
+            // loop in the template
             var H = window.History;
             if (H.enabled) {
                 e.preventDefault();
@@ -213,8 +105,6 @@ if (Meteor.isClient) {
         pair: null,
         audio: null,
         update: function(pair) {
-            console.log('UPDATE>pair', pair); //REM
-
             // open
             if (pair) {
                 if (!this.pair || this.pair._id != pair._id) {
@@ -240,6 +130,12 @@ if (Meteor.isClient) {
                     }
                     $('#view-image').expandImage('clear');
                 }
+
+                var H = window.History, state = H.getState();
+                if (H.enabled && /https?:\/\/[^\/]+\/.+$/.test(state.url)) {
+                    H.pushState(null, null, '/');
+                }
+
                 this.active = false;
             }
         },
@@ -280,7 +176,7 @@ if (Meteor.isClient) {
 
 
     //
-    // Startup
+    // URL Routing - statechange
     //
     Meteor.startup(function() {
         var H = window.History,
@@ -297,20 +193,27 @@ if (Meteor.isClient) {
                     // failed to return anything
                     // var p = Pairs.findOne({'_id': id});
 
-                    // what about just using session?
+                    // could I somehow just use session?
 
                     var handle = Pairs.find({'_id': id}).observe({
                         added: function(pair) {
                             handle && handle.stop();
                             if (curStateId == state.id) {
-                                console.log('PAIR!', pair); //REM
                                 Session.set('currentPair', pair);
-                                //Viewer.start(pair, pageLoad === true);
+
+                                // animate head
+                                var $h = $('#head').addClass('trans');
+                                Meteor.setTimeout(function() {
+                                    $h.addClass('go');
+                                    Meteor.setTimeout(function() {
+                                        $h.removeClass('trans').removeClass('go');
+                                    }, 4000);
+                                }, 500);
                             }
                         }
                     });
                 } else {
-                    Viewer.stop();
+                    viewer.update();
                 }
             }
         }
