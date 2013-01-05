@@ -114,29 +114,42 @@ if (Meteor.isClient) {
     //
     var viewer = {
         active: false,
-        pair: null,
+        pairId: null,
         audio: null,
-        update: function(pair) {
-            console.log('viewer.update', pair); //REM
+        update: function(pairId, pair) {
             // open
             if (pair) {
-                if (!this.pair || this.pair._id != pair._id) {
+                if (!this.pairId || this.pairId != pairId) {
                     var au = $.extend(new Audio(), {
-                        //autoplay: true,
+                        autoplay: true,
                         loop: true,
                         src: pair.audio
                     });
-                    //REMau.play();
+                    au.play();
                     this.audio = au;
-                    this.pair = pair;
+                    this.pairId = pairId;
                     $('#view-image').expandImage();
                     this.active = true;
+
+                    if (this.pageLoad) {
+                        this.pageLoad = false;
+                        // animate head
+                        var $h = $('#head').addClass('trans');
+                        Meteor.setTimeout(function() {
+                            $h.addClass('go');
+                            Meteor.setTimeout(function() {
+                                $h.removeClass('trans').removeClass('go');
+                            }, 4000);
+                        }, 500);
+                    }
                 }
 
             // close
-            } else {
-                if (this.pair) {
-                    this.pair = null;
+            } else if (!pairId) {
+               // TODO - weird hack checking for pairId for case
+                // when pair doesn't exist immediately at page load
+                if (this.pairId) {
+                    this.pairId = null;
                     if (this.audio) {
                         this.audio.pause();
                         this.audio = null;
@@ -160,22 +173,17 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.pair = function() {
-        return Session.get('currentPair');
-    };
-
-    Template.viewPair.isSoundCloud = function(audio) {
-        console.log('widgetHelper', audio); //REM
-        return audio && /^https?:\/\/soundcloud.com\/.+/i.test(audio);
+        return Pairs.findOne({'_id': Session.get('currentPairId')});
     };
 
     Template.viewPair.rendered = function() {
-        viewer.update(Template.viewPair.pair());
+        viewer.update(Session.get('currentPairId'), Template.viewPair.pair());
     };
 
     Template.viewPair.events({
         'click': function(e) {
             if (!$(e.target).filter('img').size()) {
-                Session.set('currentPair', null);
+                Session.set('currentPairId', null);
             }
         }
     });
@@ -184,7 +192,7 @@ if (Meteor.isClient) {
         $(window).on('keyup', function(e) {
             if (viewer.active) {
                 if (e.which == 27) {
-                    Session.set('currentPair', null);
+                    Session.set('currentPairId', null);
                 } else if (e.which == 32) {
                     viewer.toggleAudio();
                 }
@@ -197,51 +205,22 @@ if (Meteor.isClient) {
     // URL Routing - statechange
     //
     Meteor.startup(function() {
-        var H = window.History,
-            curStateId;
+        var H = window.History;
 
         function stateChange(e, pageLoad) {
             var state = H.getState(),
                 id = null;
-            curStateId = state.id;
-
             if (/^https?:\/\/[^\/]+\/[^\/]*$/i.test(state.url)) {
                 id = state.url.split('/')[3] || null;
-                console.log("STATECHANGE!!!!!!!!", id); //REM
-                if (id) {
-                    // NOTE - immediate infdOne on page load
-                    // failed to return anything
-                    // var p = Pairs.findOne({'_id': id});
-
-                    var handle = Pairs.find({_id: id}).observe({
-                        added: function(pair) {
-                            console.log('ADDED!', pair, curStateId, state.id, curStateId == state.id); //REM
-                            handle && handle.stop();
-                            if (curStateId == state.id) {
-                                Session.set('currentPair', pair);
-
-                                if (pageLoad === true) {
-                                    // animate head
-                                    var $h = $('#head').addClass('trans');
-                                    Meteor.setTimeout(function() {
-                                        $h.addClass('go');
-                                        Meteor.setTimeout(function() {
-                                            $h.removeClass('trans').removeClass('go');
-                                        }, 4000);
-                                    }, 500);
-                                }
-                            }
-                        }
-                    });
+                if (id && pageLoad) {
+                    viewer.pageLoad = true;
                 }
             }
-            if (!id && !Session.equals('currentPair', null)) {
-                console.log('NO ID! and session not null!'); //REM
-                Session.set('currentPair', null);
-            }
+            Session.set('currentPairId', id);
         }
 
         H.Adapter.bind(window, 'statechange', stateChange);
+
         stateChange(null, true);
     });
 }
