@@ -117,15 +117,16 @@ if (Meteor.isClient) {
         pair: null,
         audio: null,
         update: function(pair) {
+            console.log('viewer.update', pair); //REM
             // open
             if (pair) {
                 if (!this.pair || this.pair._id != pair._id) {
                     var au = $.extend(new Audio(), {
-                        autoplay: true,
+                        //autoplay: true,
                         loop: true,
                         src: pair.audio
                     });
-                    au.play();
+                    //REMau.play();
                     this.audio = au;
                     this.pair = pair;
                     $('#view-image').expandImage();
@@ -159,7 +160,12 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.pair = function() {
-        return Pairs.findOne({'_id': Session.get('currentPairId')});
+        return Session.get('currentPair');
+    };
+
+    Template.viewPair.isSoundCloud = function(audio) {
+        console.log('widgetHelper', audio); //REM
+        return audio && /^https?:\/\/soundcloud.com\/.+/i.test(audio);
     };
 
     Template.viewPair.rendered = function() {
@@ -169,7 +175,7 @@ if (Meteor.isClient) {
     Template.viewPair.events({
         'click': function(e) {
             if (!$(e.target).filter('img').size()) {
-                Session.set('currentPairId', null);
+                Session.set('currentPair', null);
             }
         }
     });
@@ -178,7 +184,7 @@ if (Meteor.isClient) {
         $(window).on('keyup', function(e) {
             if (viewer.active) {
                 if (e.which == 27) {
-                    Session.set('currentPairId', null);
+                    Session.set('currentPair', null);
                 } else if (e.which == 32) {
                     viewer.toggleAudio();
                 }
@@ -191,19 +197,51 @@ if (Meteor.isClient) {
     // URL Routing - statechange
     //
     Meteor.startup(function() {
-        var H = window.History;
+        var H = window.History,
+            curStateId;
 
         function stateChange(e, pageLoad) {
             var state = H.getState(),
                 id = null;
+            curStateId = state.id;
+
             if (/^https?:\/\/[^\/]+\/[^\/]*$/i.test(state.url)) {
                 id = state.url.split('/')[3] || null;
+                console.log("STATECHANGE!!!!!!!!", id); //REM
+                if (id) {
+                    // NOTE - immediate infdOne on page load
+                    // failed to return anything
+                    // var p = Pairs.findOne({'_id': id});
+
+                    var handle = Pairs.find({_id: id}).observe({
+                        added: function(pair) {
+                            console.log('ADDED!', pair, curStateId, state.id, curStateId == state.id); //REM
+                            handle && handle.stop();
+                            if (curStateId == state.id) {
+                                Session.set('currentPair', pair);
+
+                                if (pageLoad === true) {
+                                    // animate head
+                                    var $h = $('#head').addClass('trans');
+                                    Meteor.setTimeout(function() {
+                                        $h.addClass('go');
+                                        Meteor.setTimeout(function() {
+                                            $h.removeClass('trans').removeClass('go');
+                                        }, 4000);
+                                    }, 500);
+                                }
+                            }
+                        }
+                    });
+                }
             }
-            Session.set('currentPairId', id);
+            if (!id && !Session.equals('currentPair', null)) {
+                console.log('NO ID! and session not null!'); //REM
+                Session.set('currentPair', null);
+            }
         }
 
         H.Adapter.bind(window, 'statechange', stateChange);
-
         stateChange(null, true);
     });
 }
