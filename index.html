@@ -27,9 +27,11 @@
 
 <!-- pairs template -->
 <template name="pairs">
+    {{#unless pair}}
     <div id="pairs">{{#each pairs}}
         <a href="/{{_id}}" class="pair" data-id="{{_id}}" data-image="{{image}}" data-audio="{{audio}}"><img src="{{image}}"></a>{{/each}}
     </div>
+    {{/unless}}
 </template>
 
 

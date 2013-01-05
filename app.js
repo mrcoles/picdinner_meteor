@@ -58,6 +58,8 @@ Pairs.allow({
 
 if (Meteor.isClient) {
 
+    Meteor.subscribe('pairs');
+
     //
     // Head
     //
@@ -235,6 +237,11 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+
+    Meteor.publish('pairs', function() {
+        return Pairs.find({}, {sort: {'created': -1}, limit: 20});
+    });
+
     Meteor.startup(function () {
         // code to run on server at startup
     });
