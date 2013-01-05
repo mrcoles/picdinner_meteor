@@ -120,15 +120,17 @@ if (Meteor.isClient) {
             // open
             if (pair) {
                 if (!this.pairId || this.pairId != pairId) {
-                    var au = $.extend(new Audio(), {
-                        autoplay: true,
-                        loop: true,
-                        src: pair.audio
-                    });
-                    au.play();
+                    var isSoundCloud = this.isSoundCloud(pair.audio);
+                    var au = isSoundCloud ? null :
+                        $.extend(new Audio(), {
+                            autoplay: true,
+                            loop: true,
+                            src: pair.audio
+                        });
                     this.audio = au;
                     this.pairId = pairId;
-                    $('#view-image').expandImage();
+                    var arg = isSoundCloud ? {marginBottom: 166} : {};
+                    $('#view-image').expandImage(arg);
                     this.active = true;
 
                     if (this.pageLoad) {
@@ -169,11 +171,18 @@ if (Meteor.isClient) {
             if (this.audio) {
                 this.audio[this.audio.paused ? 'play' : 'pause']();
             }
+        },
+        isSoundCloud: function(audio) {
+            return audio && /^https?:\/\/soundcloud.com\/.+/i.test(audio);
         }
     };
 
     Template.viewPair.pair = function() {
         return Pairs.findOne({'_id': Session.get('currentPairId')});
+    };
+
+    Template.viewPair.isSoundCloud = function(audio) {
+        return viewer.isSoundCloud(audio);
     };
 
     Template.viewPair.rendered = function() {

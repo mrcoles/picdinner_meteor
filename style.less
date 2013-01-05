@@ -142,12 +142,25 @@ body,h1,a {
     }
 
     img {
-        bottom: 0;
-        box-shadow: 0 0 10px #000000;
-        left: 0;
-        margin: auto;
         position: absolute;
-        right: 0;
         top: 0;
+        //bottom: 0; -- rely on js sizing -- and let widgets sit below
+        left: 0;
+        right: 0;
+        margin: auto;
+        box-shadow: 0 0 10px #000000;
+    }
+
+    iframe {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        opacity: .25;
+
+        .transition(opacity .3s linear);
+
+        &:hover {
+            opacity: 1;
+        }
     }
 }
