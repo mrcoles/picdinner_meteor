@@ -147,17 +147,17 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.pair = function() {
-        return Session.get('currentPair');
+        return Pairs.findOne({'_id': Session.get('currentPairId')});
     };
 
     Template.viewPair.rendered = function() {
-        viewer.update(Session.get('currentPair'));
+        viewer.update(Template.viewPair.pair());
     };
 
     Template.viewPair.events({
         'click': function(e) {
             if (!$(e.target).filter('img').size()) {
-                Session.set('currentPair', null);
+                Session.set('currentPairId', null);
             }
         }
     });
@@ -166,7 +166,7 @@ if (Meteor.isClient) {
         $(window).on('keyup', function(e) {
             if (viewer.active) {
                 if (e.which == 27) {
-                    Session.set('currentPair', null);
+                    Session.set('currentPairId', null);
                 } else if (e.which == 32) {
                     viewer.toggleAudio();
                 }
@@ -179,45 +179,15 @@ if (Meteor.isClient) {
     // URL Routing - statechange
     //
     Meteor.startup(function() {
-        var H = window.History,
-            curStateId = null;
+        var H = window.History;
 
         function stateChange(e, pageLoad) {
-            var state = H.getState();
-            curStateId = state.id;
+            var state = H.getState(),
+                id = null;
             if (/^https?:\/\/[^\/]+\/[^\/]*$/i.test(state.url)) {
-                var id = state.url.split('/')[3];
-                if (id) {
-
-                    // NOTE - immediate infdOne on page load
-                    // failed to return anything
-                    // var p = Pairs.findOne({'_id': id});
-
-                    // could I somehow just use session?
-
-                    var handle = Pairs.find({'_id': id}).observe({
-                        added: function(pair) {
-                            handle && handle.stop();
-                            if (curStateId == state.id) {
-                                Session.set('currentPair', pair);
-
-                                if (pageLoad === true) {
-                                    // animate head
-                                    var $h = $('#head').addClass('trans');
-                                    Meteor.setTimeout(function() {
-                                        $h.addClass('go');
-                                        Meteor.setTimeout(function() {
-                                            $h.removeClass('trans').removeClass('go');
-                                        }, 4000);
-                                    }, 500);
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    Session.set('currentPair', null);
-                }
+                id = state.url.split('/')[3] || null;
             }
+            Session.set('currentPairId', id);
         }
 
         H.Adapter.bind(window, 'statechange', stateChange);
