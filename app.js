@@ -44,6 +44,18 @@
 
 Pairs = new Meteor.Collection('pairs');
 
+Pairs.allow({
+    insert: function(userId, doc) {
+        return true;
+    },
+    update: function(userId, docs, fields, modifier) {
+        return false;
+    },
+    remove: function(userId, docs) {
+        return false;
+    }
+});
+
 if (Meteor.isClient) {
 
     //
