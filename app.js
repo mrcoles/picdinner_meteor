@@ -239,7 +239,7 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
     Meteor.publish('pairs', function() {
-        return Pairs.find({}, {sort: {'created': -1}, limit: 20});
+        return Pairs.find({}, {sort: {'created': -1}, limit: 10});
     });
 
     Meteor.startup(function () {
