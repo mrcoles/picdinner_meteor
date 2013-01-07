@@ -87,7 +87,7 @@ if (Meteor.isClient) {
             var id = Pairs.insert({
                 image: image,
                 audio: audio,
-                created: (new Date()).toGMTString()
+                created: (new Date()).getTime()
             });
 
             recents.add(id);
@@ -300,5 +300,23 @@ if (Meteor.isServer) {
 
     Meteor.startup(function () {
         // code to run on server at startup
+    });
+
+    Meteor.methods({
+        fixCreated: function() {
+            Pairs.find({}).forEach(function(x) {
+                if (!/^\d+$/.test(x.created)) {
+                    try {
+                        var t = (new Date(x.created)).getTime();
+                        if (isNaN(t.getTime())) {
+                            throw new Error('not a number!');
+                        }
+                    } catch(e) {
+                        t = (new Date).getTime();
+                    }
+                    Pairs.update({_id: x.id}, {$set: {created: t}});
+                };
+            });
+        }
     });
 }
