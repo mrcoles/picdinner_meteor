@@ -84,11 +84,13 @@ if (Meteor.isClient) {
                 image = 'http://imgur.com/' + t + '.gif';
             }
 
-            Pairs.insert({
+            var id = Pairs.insert({
                 image: image,
                 audio: audio,
                 created: (new Date()).toGMTString()
             });
+
+            recents.add(id);
 
             $form.find('input').val('');
             Session.set('formNoImage', false);
@@ -117,6 +119,39 @@ if (Meteor.isClient) {
             }
         }
     });
+
+    //
+    // History
+    //
+    var recents = {
+        get: function() {
+            var h, th;
+            try {
+                th = JSON.parse(localStorage.getItem('recents'));
+                h = [];
+                _.each(th, function(x) {
+                    if (x) { h.push(x); }
+                });
+            } catch(e) {}
+            if (!h) { h = []; }
+            return h;
+        },
+        add: function(_id) {
+            var h = recents.get();
+            h.unshift(_id);
+            h = h.slice(0, 5);
+            localStorage.setItem('recents', JSON.stringify(h));
+            return recents;
+        }
+    };
+
+    Template.history.history = function() {
+        var names = 'Dengus, Paynuss, Fibbus, Chonus, Taargus'.split(', '),
+            i = 0;
+        return _.map(recents.get(), function(id) {
+            return {id: id, name: names[i++] || id};
+        });
+    };
 
     //
     // View Pair
@@ -214,6 +249,14 @@ if (Meteor.isClient) {
                 } else if (e.which == 32) {
                     viewer.toggleAudio();
                 }
+            }
+        });
+
+        $('#history').on('click', 'a', function(e) {
+            var H = window.History;
+            if (H.enabled) {
+                e.preventDefault();
+                H.pushState(null, null, $(this).attr('href'));
             }
         });
     });

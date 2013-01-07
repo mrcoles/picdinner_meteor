@@ -6,6 +6,11 @@
     {{> head}}
     <div id="container">
         {{> pairs}}
+
+
+        <div id="history">
+            {{> history}}
+        </div>
     </div>
 
     <!-- Modal -->
@@ -34,6 +39,15 @@
     {{/unless}}
 </template>
 
+<!-- history template -->
+<template name="history">
+    {{#if history}}
+    <strong>history - </strong>
+    {{#each history}}
+    <a href="/{{id}}">{{name}}</a>
+    {{/each}}
+    {{/if}}
+</template>
 
 <!-- addPair template -->
 <template name="addPair">
