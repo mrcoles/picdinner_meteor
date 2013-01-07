@@ -55,6 +55,10 @@ if (Meteor.isClient) {
     //
     // Add Pair
     //
+    Template.addPair.formNoImage = function() {
+        return Session.get('formNoImage');
+    };
+
     Template.addPair.events({
         'submit form': function(e) {
             e.preventDefault();
@@ -66,12 +70,32 @@ if (Meteor.isClient) {
 
             if (!audio) { audio = 'song.mp3'; }
 
+            if (!image) {
+                Session.set('formNoImage', true);
+                //TODO - maybe this should be part of allow/deny instead?
+                return;
+            }
+
+            var _rImgur = /^https?:\/\/imgur.com/i,
+                _rSuffix = /\.[^\/]+$/i;
+
+            if (_rImgur.test(image) && !_rSuffix.test(image)) {
+                var t = image.split('/').pop();
+                image = 'http://imgur.com/' + t + '.gif';
+            }
+
             Pairs.insert({
                 image: image,
                 audio: audio,
                 created: (new Date()).toGMTString()
             });
+
+            $form.find('input').val('');
+            Session.set('formNoImage', false);
             $('#add-pair').modal('hide');
+        },
+        'change input, keyup input': function() {
+            Session.set('formNoImage', false);
         }
     });
 
