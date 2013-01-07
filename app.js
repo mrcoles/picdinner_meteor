@@ -60,6 +60,11 @@ if (Meteor.isClient) {
 
     Meteor.subscribe('pairs');
 
+    // auto update pair subscription when it changes
+    Meteor.autosubscribe(function() {
+        Meteor.subscribe('pair', Session.get('currentPairId'));
+    });
+
     //
     // Head
     //
@@ -238,8 +243,14 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
+    var pairsLimit = 10;
+
     Meteor.publish('pairs', function() {
-        return Pairs.find({}, {sort: {'created': -1}, limit: 10});
+        return Pairs.find({}, {sort: {'created': -1}, limit: pairsLimit});
+    });
+
+    Meteor.publish('pair', function(pairId) {
+        return Pairs.find({_id: pairId});
     });
 
     Meteor.startup(function () {
