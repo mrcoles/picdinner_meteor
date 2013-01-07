@@ -1,27 +1,4 @@
 
-// Questions:
-//
-// Q. how is dom loaded in js? is there a post load hook?
-// A. use Meteor.startup(function() { ... })
-//
-// Q. publish and subscribe?
-// A. (for when autopublish is false?)
-//
-// Q. 'click .pair' - this is the db object?
-// A. it's actually the object from the for-loop!
-//
-//    > The handler function receives two arguments: event, an
-//    > object with information about the event, and template,
-//    > a template instance for the template where the handler
-//    > is defined. The handler also receives some additional
-//    > context data in this, depending on the context of the
-//    > current element handling the event. In a Handlebars
-//    > template, an element's context is the Handlebars data
-//    > context where that element occurs, which is set by block
-//    > helpers such as #with and #each.
-//
-
-
 // Ideas:
 //
 // *   meteor add less and just write in less
@@ -29,10 +6,11 @@
 // *   html file is parts: head / body / templates
 // *   change file names so not all the same! app.js / style.css
 // *   find observe pattern on startup
+// *   reactivity and template updates happens via Session variables
+// *   use subscribe to limit what data is shared and better
+//     use autosubscribe wrapper to update based on Session variables
 
 // TODO:
-//
-// *   Pairs.allow({insert: function() { return true; }, remove: function() { return false; }, update: function(userId, docs, fields, modifier) {... }})
 //
 // *   only play music when in foreground
 // *   better way to select gifs and music
