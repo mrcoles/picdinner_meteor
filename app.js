@@ -306,15 +306,16 @@ if (Meteor.isServer) {
         fixCreated: function() {
             Pairs.find({}).forEach(function(x) {
                 if (!/^\d+$/.test(x.created)) {
+                    var t;
                     try {
-                        var t = (new Date(x.created)).getTime();
+                        t = (new Date(x.created)).getTime();
                         if (isNaN(t.getTime())) {
                             throw new Error('not a number!');
                         }
                     } catch(e) {
                         t = (new Date).getTime();
                     }
-                    Pairs.update({_id: x.id}, {$set: {created: t}});
+                    Pairs.update({_id: x._id}, {$set: {created: t}});
                 };
             });
         }
