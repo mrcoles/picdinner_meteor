@@ -22,7 +22,8 @@ html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
 
 ////////////
 
-html, body { background: @body-bg; }
+html, body { background: @body-bg; height: 100%; }
+#wrapper { position: relative; min-height: 100%; }
 
 body,h1 {
     /* font: 200 40px/60px "Helvetica Neue",Helvetica,Arial,sans-serif;*/
@@ -31,22 +32,33 @@ body,h1 {
 }
 
 #head,
-#container {
+#container,
+#footer {
     position: relative;
-    margin: 20px auto;
+    margin: 0 auto;
     max-width: @container-max - (@container-pad * 2);
     min-width: @container-min - (@container-pad * 2);
 }
 
 #container {
     padding: 0 @container-pad;
-    margin-bottom: 20px;
+    padding-bottom: 40px;
+}
+
+#footer {
+    margin-top: -40px;
+    height: 20px;
+    padding: 10px 0;
+
+    >div {
+        padding: 0 20px;
+    }
 }
 
 #head {
     position: relative;
     background: @head-bg;
-    margin-top: 20px;
+    top: 20px; // cant use margin-top cause it messes with #wrap height 100%
     margin-bottom: 40px;
     overflow: hidden;
     zoom: 1;
@@ -94,6 +106,9 @@ body,h1 {
         opacity: 0;
     }
 }
+
+.left { float: left; }
+.right { float: right; }
 
 #pairs {
     position: relative;

@@ -3,22 +3,29 @@
 </head>
 
 <body>
-    {{> head}}
-    <div id="container">
-        {{> pairs}}
+    <div id="wrapper">
+        {{> head}}
+        <div id="container">
+            {{> pairs}}
+        </div>
 
+        <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
+            {{> addPair}}
+        </div>
 
-        <div id="history">
+        {{> viewPair}}
+    </div>
+
+    <div id="footer">
+        <div class="left" id="history">
             {{> history}}
+        </div>
+        <div class="right">
+            by <a href="http://mrcoles.com">Peter Coles</a> /
+            <a href="http://twitter.com/lethys">@lethys</a>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
-        {{> addPair}}
-    </div>
-
-    {{> viewPair}}
 </body>
 
 
@@ -42,7 +49,7 @@
 <!-- history template -->
 <template name="history">
     {{#if history}}
-    <strong>history - </strong>
+    recently added -
     {{#each history}}
     <a href="/{{id}}">{{name}}</a>
     {{/each}}

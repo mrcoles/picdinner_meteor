@@ -138,17 +138,19 @@ if (Meteor.isClient) {
         },
         add: function(_id) {
             var h = recents.get();
-            h.unshift(_id);
+            if (_id) h.unshift(_id);
             h = h.slice(0, 5);
             localStorage.setItem('recents', JSON.stringify(h));
+            Session.set('recents', h);
             return recents;
         }
     };
+    recents.add();
 
     Template.history.history = function() {
         var names = 'Dengus, Paynuss, Fibbus, Chonus, Taargus'.split(', '),
             i = 0;
-        return _.map(recents.get(), function(id) {
+        return _.map(Session.get('recents'), function(id) {
             return {id: id, name: names[i++] || id};
         });
     };
