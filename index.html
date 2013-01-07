@@ -43,23 +43,32 @@
     </div>
     <form style="margin:0;padding:0">
         <div class="modal-body">
-            You might find some pics
-            <a href="http://reddit.com/r/gifs" target="_blank">here</a> or
-            <a href="http://reddit.com/r/pics" target="_blank">here</a>…
-            <br>
-            <input style="width:96%" type="text" name="image" placeholder="URL for image">
-            <br>
+            <div class="row">
+                <p class="span5">
+                    Link directly to any picture—maybe something from
+                    <a href="http://reddit.com/r/gifs" target="_blank">r/gifs</a> or
+                    <a href="http://www.quickmeme.com/" target="_blank">quickmeme</a> or
+                    <a href="http://imgur.com/">imgur</a>…
+                </p>
+            </div>
+            <input class="span5" type="text" name="image" placeholder="URL for an image">
+            <br><br>
 
-            You can include a direct URL to an audio file or the URL for any song on
-            <a href="https://soundcloud.com/" target="_blank">soundcloud</a> or
-            enter nothing and use the default song…
-            <br>
-            <input style="width:96%" type="text" name="audio" placeholder="URL for audio (optional)">
+            <div class="row">
+                <p class="span5">
+                    Link to any song on
+                    <a href="https://soundcloud.com/" target="_blank">soundcloud</a>
+                    or enter nothing and use the default song!
+                </p>
+            </div>
+            <input class="span5" type="text" name="audio" placeholder="URL for a song on soundcloud (optional)">
             <br>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-primary" type="submit">Add</button>
+            <div class="row"><div class="span5">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button class="btn btn-primary" type="submit">Add</button>
+            </div></div>
         </div>
     </form>
 </template>
