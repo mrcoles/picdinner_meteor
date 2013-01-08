@@ -1,25 +1,4 @@
 
-// Ideas:
-//
-// *   meteor add less and just write in less
-// *   one page app - all files load on one page
-// *   html file is parts: head / body / templates
-// *   change file names so not all the same! app.js / style.css
-// *   find observe pattern on startup
-// *   reactivity and template updates happens via Session variables
-// *   use subscribe to limit what data is shared and better
-//     use autosubscribe wrapper to update based on Session variables
-
-// TODO:
-//
-// *   only play music when in foreground
-// *   better way to select gifs and music
-// *   extras? crazy backgrounds instead of #111? (text or title? -- too much?)
-// *   image and sound upload
-// *   thumbs of images (via canvas?)... and way to visualize sound?
-// *   social stuff ... top pics, colors for viewing, login, social share?
-// *   navigation to other pictures
-
 Pairs = new Meteor.Collection('pairs');
 
 Pairs.allow({
@@ -159,6 +138,8 @@ if (Meteor.isClient) {
     // Shares Base
     //
     Template.sharesPrimary.shareUrls = function() {
+        //TODO - not have to do the stupid list as a hack
+        //       to use parent templates, e.g., sharesPrimary
         return [{shareUrl: 'http://picdinner.com'}];
     };
 
@@ -343,3 +324,26 @@ if (Meteor.isServer) {
         }
     });
 }
+
+
+
+
+// Ideas:
+//
+// *   meteor add less and just write in less
+// *   one page app - all files load on one page
+// *   html file is parts: head / body / templates
+// *   change file names so not all the same! app.js / style.css
+// *   reactivity and template updates happens via Session variables
+// *   use subscribe to limit what data is shared and better
+//     use autosubscribe wrapper to update based on Session variables
+
+// TODO:
+//
+// *   only play music when in foreground
+// *   better way to select gifs and music
+// *   extras? crazy backgrounds instead of #111? (text or title? -- too much?)
+// *   image and sound upload
+// *   thumbs of images (via canvas?)... and way to visualize sound?
+// *   social stuff ... top pics, colors for viewing, login
+// *   navigation to other pictures
