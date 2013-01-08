@@ -2,7 +2,7 @@
 
 html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
 
-@container-max: 980px;
+@container-max: 960px;
 @container-min: 320px;
 @container-pad: 20px;
 
@@ -52,6 +52,8 @@ body,h1 {
 
     >div {
         padding: 0 20px;
+
+        &.shares { padding-right: 0; }
     }
 }
 
@@ -163,7 +165,7 @@ body,h1 {
     img {
         position: absolute;
         top: 0;
-        //bottom: 0; -- rely on js sizing -- and let widgets sit below
+        bottom: 0;
         left: 0;
         right: 0;
         margin: auto;
@@ -171,16 +173,28 @@ body,h1 {
     }
 
     img.full {
-        bottom: 0;
+        bottom: 166px;
     }
 
-    iframe {
+    #widget {
         position: fixed;
         bottom: 0;
         left: 0;
         opacity: .25;
 
         .transition(opacity .3s linear);
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    #pair-info {
+        position: fixed;
+        top: 10px;
+        right: 0;
+        z-index: 10;
+        opacity: .25;
 
         &:hover {
             opacity: 1;

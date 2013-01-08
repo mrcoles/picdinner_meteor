@@ -1,0 +1,15 @@
+
+<template name="sharesPrimary">
+    {{#each shareUrls}}{{> sharesBase}}{{/each}}
+</template>
+
+<template name="sharesSecondary">
+    {{#each shareUrls}}{{> sharesBase}}{{/each}}
+</template>
+
+<template name="sharesBase">
+    {{#if shareUrl}}
+    <span class="fb-like" data-href="{{shareUrl}}" data-send="false" data-layout="button_count" data-width="80" data-show-faces="false"></span>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-url="{{shareUrl}}" data-via="lethys">Tweet</a>
+    {{/if}}
+</template>

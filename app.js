@@ -156,6 +156,18 @@ if (Meteor.isClient) {
     };
 
     //
+    // Shares Base
+    //
+    Template.sharesPrimary.shareUrls = function() {
+        return [{shareUrl: 'http://picdinner.meteor.com'}];
+    };
+
+    Template.sharesSecondary.shareUrls = function() {
+        var id = Session.get('currentPairId');
+        return id ? [{shareUrl: 'http://picdinner.meteor.com/'+id}] : [];
+    };
+
+    //
     // View Pair
     //
     var viewer = {
@@ -233,6 +245,7 @@ if (Meteor.isClient) {
 
     Template.viewPair.rendered = function() {
         viewer.update(Session.get('currentPairId'), Template.viewPair.pair());
+        SharesLoader.load();
     };
 
     Template.viewPair.events({
@@ -253,14 +266,6 @@ if (Meteor.isClient) {
                 }
             }
         });
-
-        $('#history').on('click', 'a', function(e) {
-            var H = window.History;
-            if (H.enabled) {
-                e.preventDefault();
-                H.pushState(null, null, $(this).attr('href'));
-            }
-        });
     });
 
 
@@ -268,6 +273,10 @@ if (Meteor.isClient) {
     // URL Routing - statechange
     //
     Meteor.startup(function() {
+
+        //
+        // push state
+        //
         var H = window.History;
 
         function stateChange(e, pageLoad) {
@@ -285,6 +294,17 @@ if (Meteor.isClient) {
         H.Adapter.bind(window, 'statechange', stateChange);
 
         stateChange(null, true);
+
+        //
+        // recents
+        //
+        $('#history').on('click', 'a', function(e) {
+            var H = window.History;
+            if (H.enabled) {
+                e.preventDefault();
+                H.pushState(null, null, $(this).attr('href'));
+            }
+        });
     });
 }
 
