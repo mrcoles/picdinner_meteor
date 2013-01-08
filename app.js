@@ -159,12 +159,12 @@ if (Meteor.isClient) {
     // Shares Base
     //
     Template.sharesPrimary.shareUrls = function() {
-        return [{shareUrl: 'http://picdinner.meteor.com'}];
+        return [{shareUrl: 'http://picdinner.com'}];
     };
 
     Template.sharesSecondary.shareUrls = function() {
         var id = Session.get('currentPairId');
-        return id ? [{shareUrl: 'http://picdinner.meteor.com/'+id}] : [];
+        return id ? [{shareUrl: 'http://picdinner.com/'+id}] : [];
     };
 
     //
