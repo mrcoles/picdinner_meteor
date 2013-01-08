@@ -20,13 +20,14 @@
         <div class="left" id="history">
             {{> history}}
         </div>
+        {{#constant}}
         <div class="right shares">
-            {{#constant}}
             by <a href="http://mrcoles.com">Peter Coles</a> /
-            <a href="http://twitter.com/lethys">@lethys</a> &nbsp;&nbsp;
+            <a href="http://twitter.com/lethys">@lethys</a> /
+            built with <a href="http://meteor.com">meteor</a> &nbsp;&nbsp;
             {{> sharesPrimary}}
-            {{/constant}}
         </div>
+        {{/constant}}
     </div>
 {{#constant}}<div id="fb-root"></div>{{/constant}}
 </body>
