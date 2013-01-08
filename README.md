@@ -8,7 +8,7 @@ PicDinner was my first forray into building something with [Meteor](http://meteo
 
 ### Technical mumbo-jumbo:
 
-It’s a pretty straight-forward app, some non-standard things in there might be:
+It’s a pretty straight-forward app (I wrote it on Meteor 0.5.2), some non-standard things in there might be:
 
 *   renamed my core files to index.html, app.js, style.less (included less package)
 *   used History.js for HTML5 pushState and semi-manual URL routing
