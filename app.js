@@ -99,6 +99,10 @@ if (Meteor.isClient) {
         }
     });
 
+    Template.pairs.rendered = function() {
+        $('#pairs').find('a.pair>img').stopgifs();
+    };
+
     //
     // History
     //
