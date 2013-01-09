@@ -245,9 +245,13 @@ if (Meteor.isClient) {
 
     Template.viewPair.events({
         'click': function(e) {
-            if (!$(e.target).filter('img').size()) {
+            if (e.target.id == 'view-pair') {
                 Session.set('currentPairId', null);
             }
+        },
+        'click a.close': function(e) {
+            e.preventDefault();
+            Session.set('currentPairId', null);
         }
     });
 

@@ -20,6 +20,14 @@ html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
           transition: @transition;
 }
 
+
+.border-radius(@radius) {
+    -webkit-border-radius: @radius;
+       -moz-border-radius: @radius;
+            border-radius: @radius;
+}
+
+
 ////////////
 
 html, body { background: @body-bg; height: 100%; }
@@ -203,6 +211,17 @@ body,h1 {
         &:hover {
             opacity: 1;
         }
+    }
+
+    a.close {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        line-height: 17px; // alignment ugh...
+        height: 20px;
+        width: 20px;
+        background: #fff;
+        .border-radius(10px);
     }
 }
 
