@@ -4,7 +4,9 @@
 
     $.stopgifs = {
         defaults: {
-            hoverAnimate: true
+            hoverAnimate: true // enable animate during hover
+            // background (fn or str) fill style for canvas bg during load
+            // parentClosest (str) jquery closest selector for hiding on error
         }
     };
 
@@ -33,9 +35,9 @@
             updateDims();
 
             if (opts.background) {
-                canvas.fillStyle = $.isFunction(opts.background) ?
+                ctx.fillStyle = $.isFunction(opts.background) ?
                     opts.background() : opts.background;
-                canvas.fillRect(0, 0, width, height);
+                ctx.fillRect(0, 0, width, height);
             }
 
             if (opts.hoverAnimate) {
@@ -43,9 +45,9 @@
                     $canvas.hide();
                     $img.show();
                 }, function() {
+                    load();
                     $img.hide();
                     $canvas.show();
-                    load();
                 });
             }
 

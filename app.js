@@ -100,7 +100,17 @@ if (Meteor.isClient) {
     });
 
     Template.pairs.rendered = function() {
-        $('#pairs').find('a.pair>img').stopgifs();
+        var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
+            i = 0,
+            len = colors.length;
+        function bgFn() {
+            if (i >= len) i = 0;
+            return '#' + colors[i++];
+        }
+        $('#pairs').find('a.pair>img').stopgifs({
+            parentClosest: '.pair',
+            background: bgFn
+        });
     };
 
     //
@@ -295,7 +305,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
-    var pairsLimit = 10;
+    var pairsLimit = 15;
 
     Meteor.publish('pairs', function() {
         return Pairs.find({}, {sort: {'created': -1}, limit: pairsLimit});
