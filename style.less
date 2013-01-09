@@ -42,18 +42,21 @@ body,h1 {
 
 #container {
     padding: 0 @container-pad;
-    padding-bottom: 40px;
+    padding-bottom: 60px;
 }
 
 #footer {
-    margin-top: -40px;
-    height: 20px;
+    margin-top: -60px;
+    min-height: 40px;
     padding: 10px 0;
 
     >div {
         padding: 0 20px;
 
-        &.shares { padding-right: 0; }
+        &.right {
+            padding-right: 0;
+            clear: left;
+        }
     }
 }
 

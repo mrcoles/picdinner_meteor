@@ -1,4 +1,5 @@
 <head>
+    <meta charset="utf-8">
     <title>picDinner - a complete meal of image and audio!</title>
     <meta name="description" content="Pictures and sound paired up to offer you delicious visual and aural meals—built with Meteor"/>
     <script src="jquery.stopgifs.js"></script>
@@ -25,7 +26,8 @@
         {{#constant}}
         <div class="right shares">
             by <a href="http://mrcoles.com">Peter Coles</a> /
-            <a href="http://twitter.com/lethys">@lethys</a> /
+            <a href="https://twitter.com/lethys">@lethys</a> /
+            on <a href="https://github.com/mrcoles/picdinner_meteor">github</a> /
             built with <a href="http://meteor.com">meteor</a> &nbsp;&nbsp;
             {{> sharesPrimary}}
         </div>
@@ -55,10 +57,10 @@
 <!-- history template -->
 <template name="history">
     {{#if history}}
-    recent adds -
+    →
     {{#each history}}
     <a href="/{{id}}">{{name}}</a>
-    {{/each}}
+    {{/each}} ←
     {{/if}}
 </template>
 
