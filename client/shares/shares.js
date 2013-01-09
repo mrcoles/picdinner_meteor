@@ -1,3 +1,4 @@
+// Peter Coles - mrcoles.com - 2013
 
 if (Meteor.isClient) {
     Meteor.startup(function() {
