@@ -13,7 +13,7 @@ It’s a pretty straight-forward app (I wrote it on Meteor 0.5.2), some non-stan
 *   renamed my core files to index.html, app.js, style.less (included less package)
 *   used History.js for HTML5 pushState and semi-manual URL routing
 *   wrote some relatively reusable code for including FB & Twitter sharing widgets
-    that lives in client/shares*
+    that lives in client/shares/*
 
 Some ideas that eluded me when I first started:
 
@@ -28,8 +28,10 @@ Some pain-points, possibly due to being new to Meteor:
 
 *   wanted to re-use the same template in different templates
     with different helper function variables, I ended up making
-    multiple templates as seen in client/shares.html
+    multiple templates as seen in client/shares/shares.html
 *   had to fall back to Tempate.foo.rendered for more advanced JS
     interaction like the music playing and updating the share buttons
 *   my CPU goes nuts when I run the application, but that’s probably
     just because I’m currently playing up to 10 animated gifs at once
+    -- updated: created jquery.stopgifs.js to replace gifs with canvas
+    elements until you hover
