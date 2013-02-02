@@ -13,12 +13,21 @@ Pairs.allow({
     }
 });
 
+function createdNow() {
+    return (new Date()).getTime();
+}
+
 if (Meteor.isClient) {
 
-    Meteor.subscribe('pairs');
+    function setIfNotEqual(attr, val) {
+        if (!Session.equals(attr, val)) {
+            Session.set(attr, val);
+        }
+    }
 
     // auto update pair subscription when it changes
     Meteor.autosubscribe(function() {
+        Meteor.subscribe('pairs', Session.get('newestCreated'));
         Meteor.subscribe('pair', Session.get('currentPairId'));
     });
 
@@ -66,7 +75,7 @@ if (Meteor.isClient) {
             var id = Pairs.insert({
                 image: image,
                 audio: audio,
-                created: (new Date()).getTime()
+                created: createdNow()
             });
 
             recents.add(id);
@@ -83,8 +92,49 @@ if (Meteor.isClient) {
     //
     // Pairs
     //
+    var Paginator = (function() {
+        // pretty jenky first attempt at pagination
+        // -  things flicker when you click next
+        // -  not sure how to check if there are no pairs in the template
+        // -  stores state in js
+        var self = {
+            newestCreatedStack: [],
+            addNewest: function() {
+                var newestCreated = $('#pairs').find('.pair').last().data('created');
+                if (!newestCreated) {
+                    self.newestCreatedStack = [];
+                } else {
+                    self.newestCreatedStack.push(Session.get('newestCreated'));
+                }
+                Session.set('newestCreated', newestCreated);
+                self._updateState();
+            },
+            popNewest: function() {
+                var newestCreated = self.newestCreatedStack.pop() || null;
+                Session.set('newestCreated', newestCreated);
+                self._updateState();
+            },
+            _updateState: function() {
+                setIfNotEqual('hasPrev', self.newestCreatedStack.length != 0);
+                setIfNotEqual('hasNext',
+                              (self.newestCreatedStack.length == 0 ||
+                               $('#pairs').find('.pair').size() != 0));
+            }
+        };
+        self._updateState();
+        return self;
+    })();
+
+    Template.pairs.hasPrev = function() { return Session.get('hasPrev'); };
+    Template.pairs.hasNext = function() { return Session.get('hasNext'); };
+
     Template.pairs.pairs = function() {
-        return Pairs.find({}, {sort: {"created": -1}});
+        var query = {},
+            newestCreated = Session.get('newestCreated');
+        if (newestCreated) {
+            query.created = {'$lt': newestCreated};
+        }
+        return Pairs.find(query, {sort: {"created": -1}});
     };
 
     Template.pairs.events({
@@ -96,18 +146,21 @@ if (Meteor.isClient) {
                 e.preventDefault();
                 H.pushState(null, null, '/' + this._id);
             }
-        }
+        },
+        'click .next': Paginator.addNewest,
+        'click .prev': Paginator.popNewest
     });
 
     Template.pairs.rendered = function() {
         var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
+            $pairs = $('#pairs'),
             i = 0,
             len = colors.length;
         function bgFn() {
             if (i >= len) i = 0;
             return '#' + colors[i++];
         }
-        $('#pairs').find('a.pair>img').stopgifs({
+        $pairs.find('a.pair>img').stopgifs({
             parentClosest: '.pair',
             background: bgFn
         });
@@ -311,8 +364,12 @@ if (Meteor.isServer) {
 
     var pairsLimit = 15;
 
-    Meteor.publish('pairs', function() {
-        return Pairs.find({}, {sort: {'created': -1}, limit: pairsLimit});
+    Meteor.publish('pairs', function(newestCreated) {
+        var query = {};
+        if (newestCreated) {
+            query.created = {'$lt': newestCreated};
+        }
+        return Pairs.find(query, {sort: {'created': -1}, limit: pairsLimit});
     });
 
     Meteor.publish('pair', function(pairId) {
@@ -334,7 +391,7 @@ if (Meteor.isServer) {
                             throw new Error('not a number!');
                         }
                     } catch(e) {
-                        t = (new Date).getTime();
+                        t = createdNow();
                     }
                     Pairs.update({_id: x._id}, {$set: {created: t}});
                 };
