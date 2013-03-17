@@ -237,3 +237,12 @@ form {
         margin-bottom: 12px;
     }
 }
+
+//////////////// stop the stupid modal % thing
+
+.modal {
+    &.fade { top: -400px; }
+    &.in,
+    &.fade.in { top: 50px; }
+    margin-top: 0;
+}
