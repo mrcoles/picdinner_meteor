@@ -26,7 +26,7 @@ if (Meteor.isClient) {
     }
 
     // auto update pair subscription when it changes
-    Meteor.autosubscribe(function() {
+    Deps.autorun(function() {
         Meteor.subscribe('pairs', Session.get('newestCreated'));
         Meteor.subscribe('pair', Session.get('currentPairId'));
     });
