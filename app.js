@@ -237,8 +237,7 @@ if (Meteor.isClient) {
                     $('#view-image').expandImage(arg);
                     this.active = true;
 
-                    if (this.pageLoad) {
-                        this.pageLoad = false;
+                    if (!this.didFirstUpdate) {
                         // animate head
                         var $h = $('#head').addClass('trans');
                         Meteor.setTimeout(function() {
@@ -250,10 +249,10 @@ if (Meteor.isClient) {
                     }
                 }
 
+                this.didFirstUpdate = true;
+
             // close
             } else if (!pairId) {
-                // TODO - weird hack checking for pairId for case
-                // when pair doesn't exist immediately at page load
                 if (this.pairId) {
                     this.pairId = null;
                     if (this.audio) {
@@ -263,10 +262,14 @@ if (Meteor.isClient) {
                     $('#view-image').expandImage('clear');
                 }
 
-                // // change back to root URL, unless we're already there
-                // Backbone.history.navigate('/', true);
+                // change back to root URL, unless we're already there
+                // or already not active (e.g., load /add)
+                if (this.active) {
+                    Backbone.history.navigate('/', true);
+                }
 
                 this.active = false;
+                this.didFirstUpdate = true;
             }
         },
         toggleAudio: function() {
@@ -322,7 +325,6 @@ if (Meteor.isClient) {
     //
     Meteor.startup(function() {
 
-        var firstLoad = true;
         var customRoutes = {
             add: function() {
                 $('#add-pair').modal();
@@ -336,13 +338,7 @@ if (Meteor.isClient) {
             main: function(id) {
                 var customRoute = customRoutes[id];
                 if (customRoute || !id) { id = null; }
-                if (firstLoad) {
-                    firstLoad = false;
-                    if (id) { viewer.pageLoad = true; }
-                }
-                if (customRoute) {
-                    customRoute();
-                }
+                if (customRoute) { customRoute(); }
                 Session.set('currentPairId', id);
             }
         });
