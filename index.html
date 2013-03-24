@@ -72,7 +72,7 @@
 <!-- addPair template -->
 <template name="addPair">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3 id="myModalLabel">Pair up an image and audio!</h3>
     </div>
     <form style="margin:0;padding:0">
@@ -117,7 +117,9 @@
         {{/if}}
         <div id="pair-info" class="shares">
             {{> sharesSecondary}}
-            <a class="close" href="/" onclick="return false" title="picDinner home">x</a>
+            <a class="close" href="/" onclick="return false" title="picDinner home">&times;</a>
         </div>
+        {{#if nextPair}}<a class="prev next" href="/{{nextPair._id}}"><em>next</em></a>{{/if}}
+        {{#if prevPair}}<a class="prev" href="/{{prevPair._id}}"><em>previous</em></a>{{/if}}
     {{/if}}</div>
 </template>

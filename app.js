@@ -17,6 +17,16 @@ function createdNow() {
     return (new Date()).getTime();
 }
 
+function lookupNext(currentCreated, prev) {
+    if (!currentCreated) return null;
+    return Pairs.findOne({
+        created: prev ? {'$gt': currentCreated} : {'$lt': currentCreated}
+    }, {
+        sort: {'created': prev ? 1 : -1},
+        limit: 1
+    });
+}
+
 if (Meteor.isClient) {
 
     function setIfNotEqual(attr, val) {
@@ -29,6 +39,8 @@ if (Meteor.isClient) {
     Deps.autorun(function() {
         Meteor.subscribe('pairs', Session.get('newestCreated'));
         Meteor.subscribe('pair', Session.get('currentPairId'));
+        Meteor.subscribe('prevPair', Session.get('currentCreated'));
+        Meteor.subscribe('nextPair', Session.get('currentCreated'));
     });
 
     //
@@ -223,8 +235,10 @@ if (Meteor.isClient) {
         update: function(pairId, pair) {
             // open
             if (pair) {
+                var isSoundCloud = this.isSoundCloud(pair.audio);
+
                 if (!this.pairId || this.pairId != pairId) {
-                    var isSoundCloud = this.isSoundCloud(pair.audio);
+                    this.clear();
                     var au = isSoundCloud ? null :
                         $.extend(new Audio(), {
                             autoplay: true,
@@ -233,8 +247,6 @@ if (Meteor.isClient) {
                         });
                     this.audio = au;
                     this.pairId = pairId;
-                    var arg = isSoundCloud ? {marginBottom: 166} : {};
-                    $('#view-image').expandImage(arg);
                     this.active = true;
 
                     if (!this.didFirstUpdate) {
@@ -249,18 +261,14 @@ if (Meteor.isClient) {
                     }
                 }
 
+                var arg = isSoundCloud ? {marginBottom: 166} : {};
+                $('#view-image').expandImage(arg);
+
                 this.didFirstUpdate = true;
 
             // close
             } else if (!pairId) {
-                if (this.pairId) {
-                    this.pairId = null;
-                    if (this.audio) {
-                        this.audio.pause();
-                        this.audio = null;
-                    }
-                    $('#view-image').expandImage('clear');
-                }
+                this.clear();
 
                 // change back to root URL, unless we're already there
                 // or already not active (e.g., load /add)
@@ -270,6 +278,16 @@ if (Meteor.isClient) {
 
                 this.active = false;
                 this.didFirstUpdate = true;
+            }
+        },
+        clear: function() {
+            if (this.pairId) {
+                this.pairId = null;
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio = null;
+                }
+                $('#view-image').expandImage('clear');
             }
         },
         toggleAudio: function() {
@@ -283,7 +301,21 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.pair = function() {
-        return Pairs.findOne({'_id': Session.get('currentPairId')});
+        var p = Pairs.findOne({'_id': Session.get('currentPairId')});
+        if (p) {
+            Session.set('currentCreated', p.created);
+        }
+        return p;
+    };
+
+    Template.viewPair.nextPair = function() {
+        var currentCreated = Session.get('currentCreated');
+        return lookupNext(currentCreated, false);
+    };
+
+    Template.viewPair.prevPair = function() {
+        var currentCreated = Session.get('currentCreated');
+        return lookupNext(currentCreated, true);
     };
 
     Template.viewPair.isSoundCloud = function(audio) {
@@ -359,6 +391,14 @@ if (Meteor.isServer) {
 
     Meteor.publish('pair', function(pairId) {
         return Pairs.find({_id: pairId});
+    });
+
+    Meteor.publish('prevPair', function(currentCreated) {
+        return lookupNext(currentCreated, true);
+    });
+
+    Meteor.publish('nextPair', function(currentCreated) {
+        return lookupNext(currentCreated, false);
     });
 
     Meteor.startup(function () {

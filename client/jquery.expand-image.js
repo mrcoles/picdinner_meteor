@@ -22,11 +22,7 @@
             imgHeight = im.height;
             imgWidth = im.width;
             active = true;
-            $(window).on('resize.expand-image', function() {
-                if (active) {
-                    expand();
-                }
-            });
+            $(window).on('resize.expand-image', expand);
             expand();
         };
         im.src = src;
@@ -46,6 +42,7 @@
             img = $img[0];
             img.width = imgWidth * r;
             img.height = imgHeight * r;
+            console.log('expand!', active, imgWidth, imgHeight, wW, wH, imgWidth * r, imgHeight * r); //REM
         }
     }
 

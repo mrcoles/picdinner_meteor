@@ -226,8 +226,79 @@ body,h1 {
         width: 20px;
         background: #fff;
         .border-radius(10px);
+        opacity: 1;
+    }
+
+}
+
+/** prev and next arrows */
+
+.prev {
+    position: fixed;
+    left: 0;
+    top: 100px;
+    bottom: 166px; // stay above soundcloud player
+    width: 35%;
+    z-index: 10;
+    //background: red;
+
+    opacity: 0;
+    transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -webkit-transition: opacity 1s;
+    -o-transition: opacity 1s;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    em {
+        position: absolute;
+        display: block;
+        left: 10%;
+        top: 50%;
+        margin-top: -43px;
+        width: 60px;
+        height: 86px;
+        background: rgba(255, 255, 255, .5);
+        border-radius: 10px;
+        text-indent: 120%;
+        overflow: hidden;
+
+        &:after {
+            position: absolute;
+            top: 13px;
+            left: 15px;
+            content: "";
+            width: 0;
+            height: 0;
+            border-color: transparent #111 transparent transparent;
+            border-width: 30px 30px 30px 0;
+            border-style: solid;
+        }
     }
 }
+
+.next {
+    left: auto;
+    right: 0;
+
+    em {
+        left: auto;
+        right: 10%;
+
+        &:after {
+            border-color: transparent transparent transparent #111;
+            border-width: 30px 0 30px 30px;
+        }
+    }
+}
+
+/* **/
 
 form {
     font-size: 18px;
