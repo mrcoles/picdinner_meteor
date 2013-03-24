@@ -89,6 +89,13 @@ if (Meteor.isClient) {
         }
     });
 
+    Meteor.startup(function() {
+        // other options: hidden, show, shown
+        $('#add-pair').on('hide', function() {
+            Backbone.history.navigate('/', true);
+        });
+    });
+
     //
     // Pairs
     //
@@ -256,8 +263,8 @@ if (Meteor.isClient) {
                     $('#view-image').expandImage('clear');
                 }
 
-                // change back to root URL, unless we're already there
-                Backbone.history.navigate('/', true);
+                // // change back to root URL, unless we're already there
+                // Backbone.history.navigate('/', true);
 
                 this.active = false;
             }
@@ -316,23 +323,26 @@ if (Meteor.isClient) {
     Meteor.startup(function() {
 
         var firstLoad = true;
-        function pageLoad(id) {
-            if (firstLoad) {
-                firstLoad = false;
-                if (id) { viewer.pageLoad = true; }
+        var customRoutes = {
+            add: function() {
+                $('#add-pair').modal();
             }
-        }
+        };
 
         Backbone.PushStateRouter({
-            '': 'home',
-            ':id': 'getId'
+            '': 'main',
+            ':id': 'main'
         }, {
-            home: function() {
-                pageLoad();
-                Session.set('currentPairId', null);
-            },
-            getId: function(id) {
-                pageLoad(id);
+            main: function(id) {
+                var customRoute = customRoutes[id];
+                if (customRoute || !id) { id = null; }
+                if (firstLoad) {
+                    firstLoad = false;
+                    if (id) { viewer.pageLoad = true; }
+                }
+                if (customRoute) {
+                    customRoute();
+                }
                 Session.set('currentPairId', id);
             }
         });
