@@ -138,15 +138,6 @@ if (Meteor.isClient) {
     };
 
     Template.pairs.events({
-        'click .pair': function(e) {
-            // NOTE - `this` is actually "pair" from the each
-            // loop in the template
-            var H = window.History;
-            if (H.enabled) {
-                e.preventDefault();
-                H.pushState(null, null, '/' + this._id);
-            }
-        },
         'click .next': Paginator.addNewest,
         'click .prev': Paginator.popNewest
     });
@@ -254,7 +245,7 @@ if (Meteor.isClient) {
 
             // close
             } else if (!pairId) {
-               // TODO - weird hack checking for pairId for case
+                // TODO - weird hack checking for pairId for case
                 // when pair doesn't exist immediately at page load
                 if (this.pairId) {
                     this.pairId = null;
@@ -265,10 +256,8 @@ if (Meteor.isClient) {
                     $('#view-image').expandImage('clear');
                 }
 
-                var H = window.History, state = H.getState();
-                if (H.enabled && /https?:\/\/[^\/]+\/.+$/.test(state.url)) {
-                    H.pushState(null, null, '/');
-                }
+                // change back to root URL, unless we're already there
+                Backbone.history.navigate('/', true);
 
                 this.active = false;
             }
@@ -322,39 +311,29 @@ if (Meteor.isClient) {
 
 
     //
-    // URL Routing - statechange
+    // URL Routing
     //
     Meteor.startup(function() {
 
-        //
-        // push state
-        //
-        var H = window.History;
-
-        function stateChange(e, pageLoad) {
-            var state = H.getState(),
-                id = null;
-            if (/^https?:\/\/[^\/]+\/[^\/]*$/i.test(state.url)) {
-                id = state.url.split('/')[3] || null;
-                if (id && pageLoad) {
-                    viewer.pageLoad = true;
-                }
+        var firstLoad = true;
+        function pageLoad(id) {
+            if (firstLoad) {
+                firstLoad = false;
+                if (id) { viewer.pageLoad = true; }
             }
-            Session.set('currentPairId', id);
         }
 
-        H.Adapter.bind(window, 'statechange', stateChange);
-
-        stateChange(null, true);
-
-        //
-        // recents
-        //
-        $('#history').on('click', 'a', function(e) {
-            var H = window.History;
-            if (H.enabled) {
-                e.preventDefault();
-                H.pushState(null, null, $(this).attr('href'));
+        Backbone.PushStateRouter({
+            '': 'home',
+            ':id': 'getId'
+        }, {
+            home: function() {
+                pageLoad();
+                Session.set('currentPairId', null);
+            },
+            getId: function(id) {
+                pageLoad(id);
+                Session.set('currentPairId', id);
             }
         });
     });
