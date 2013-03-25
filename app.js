@@ -29,6 +29,12 @@ function lookupNext(currentCreated, prev) {
 
 if (Meteor.isClient) {
 
+    function log() {
+        try {
+            console.log.apply(console, arguments);
+        } catch(e) {}
+    }
+
     function setIfNotEqual(attr, val) {
         if (!Session.equals(attr, val)) {
             Session.set(attr, val);
@@ -228,6 +234,7 @@ if (Meteor.isClient) {
     //
     // View Pair
     //
+    var scWidget = null;
     var viewer = {
         active: false,
         pairId: null,
@@ -247,6 +254,24 @@ if (Meteor.isClient) {
                         });
                     this.audio = au;
                     this.pairId = pairId;
+
+                    var $viewImage = $('#view-image');
+
+                    if (isSoundCloud) {
+                        $viewImage.fadeOut(0);
+                        scWidget.load(pair.audio, {
+                            callback: function() {
+                                log('[CALLBACK]');
+                                $('#widget').fadeIn('slow');
+                                scWidget.play();
+                                $viewImage.fadeIn();
+                            }
+                        });
+                    }
+
+                    var arg = isSoundCloud ? {marginBottom: 166} : {};
+                    $viewImage.expandImage(arg);
+
                     this.active = true;
 
                     if (!this.didFirstUpdate) {
@@ -260,9 +285,6 @@ if (Meteor.isClient) {
                         }, 500);
                     }
                 }
-
-                var arg = isSoundCloud ? {marginBottom: 166} : {};
-                $('#view-image').expandImage(arg);
 
                 this.didFirstUpdate = true;
 
@@ -287,12 +309,16 @@ if (Meteor.isClient) {
                     this.audio.pause();
                     this.audio = null;
                 }
+                scWidget.pause();
+                $('#widget').hide();
                 $('#view-image').expandImage('clear');
             }
         },
         toggleAudio: function() {
             if (this.audio) {
                 this.audio[this.audio.paused ? 'play' : 'pause']();
+            } else {
+                scWidget.toggle();
             }
         },
         isSoundCloud: function(audio) {
@@ -302,9 +328,7 @@ if (Meteor.isClient) {
 
     Template.viewPair.pair = function() {
         var p = Pairs.findOne({'_id': Session.get('currentPairId')});
-        if (p) {
-            Session.set('currentCreated', p.created);
-        }
+        Session.set('currentCreated', p ? p.created : null);
         return p;
     };
 
@@ -349,6 +373,11 @@ if (Meteor.isClient) {
                 }
             }
         });
+
+        // // initialize soundcloud client
+        // SC.initialize({
+        //     client_id: 'f6ea539c4f3ba2383cacb0b3e1926f11'
+        // });
     });
 
 
@@ -373,6 +402,38 @@ if (Meteor.isClient) {
                 if (customRoute) { customRoute(); }
                 Session.set('currentPairId', id);
             }
+        });
+    });
+
+    Meteor.startup(function() {
+
+        // SoundCloud html5 widget
+        // [docs](http://developers.soundcloud.com/docs/api/html5-widget)
+        scWidget = SC.Widget('widget');
+
+        scWidget.bind(SC.Widget.Events.READY, function() {
+            log('[READY]');
+            scWidget.bind(SC.Widget.Events.PLAY, function() {
+                log('[PLAY]');
+                if (viewer.pairId && viewer.audio) {
+                    log('  PAUSING!', viewer.pairId, viewer.audio);
+                    scWidget.pause();
+                }
+                // // get information about currently playing sound
+                // scWidget.getCurrentSound(function(currentSound) {
+                //     console.log('sound ' + currentSound.title + 'began to play');
+                // });
+            });
+
+            scWidget.bind(SC.Widget.Events.FINISH, function() {
+                var $next = $('#next-pair');
+                log('[FINISH]', '$next', $next.attr('href'));
+                if ($next.size()) {
+                    scWidget.pause();
+                    Backbone.history.navigate($next.attr('href'), true);
+                }
+            });
+            //scWidget.play();
         });
     });
 }

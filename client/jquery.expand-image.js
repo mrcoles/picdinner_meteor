@@ -42,7 +42,6 @@
             img = $img[0];
             img.width = imgWidth * r;
             img.height = imgHeight * r;
-            console.log('expand!', active, imgWidth, imgHeight, wW, wH, imgWidth * r, imgHeight * r); //REM
         }
     }
 

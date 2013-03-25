@@ -192,19 +192,6 @@ body,h1 {
         bottom: 166px;
     }
 
-    #widget {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        opacity: .25;
-
-        .transition(opacity .3s linear);
-
-        &:hover {
-            opacity: 1;
-        }
-    }
-
     #pair-info {
         position: fixed;
         top: 10px;
@@ -231,15 +218,31 @@ body,h1 {
 
 }
 
+#widget {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    opacity: .25;
+    z-index: 500;
+
+    .transition(opacity .3s linear);
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+
 /** prev and next arrows */
 
-.prev {
+.prev-arrow {
     position: fixed;
     left: 0;
     top: 100px;
     bottom: 166px; // stay above soundcloud player
     width: 35%;
-    z-index: 10;
+    z-index: 501;
     //background: red;
 
     opacity: 0;
@@ -283,7 +286,7 @@ body,h1 {
     }
 }
 
-.next {
+.next-arrow {
     left: auto;
     right: 0;
 
