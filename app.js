@@ -288,6 +288,7 @@ if (Meteor.isClient) {
             // open
             if (pair) {
                 var isSoundCloud = this.isSoundCloud(pair.audio);
+                var $viewImage = $('#view-image');
 
                 if (!this.pairId || this.pairId != pairId) {
                     this.clear();
@@ -300,8 +301,6 @@ if (Meteor.isClient) {
                     this.audio = au;
                     this.pairId = pairId;
 
-                    var $viewImage = $('#view-image');
-
                     if (isSoundCloud) {
                         $viewImage.fadeOut(0);
                         scWidget.load(pair.audio, {
@@ -310,12 +309,19 @@ if (Meteor.isClient) {
                                 $('#widget').fadeIn('slow');
                                 scWidget.play();
                                 $viewImage.fadeIn();
+
+                                // HACK sometimes soundcloud fails to start
+                                Meteor.setTimeout(function() {
+                                    scWidget.isPaused(function(paused) {
+                                        if (paused && viewer.pairId == pairId) {
+                                            log('  still paused, hitting play again.');
+                                            scWidget.play();
+                                        }
+                                    });
+                                }, 500);
                             }
                         });
                     }
-
-                    var arg = isSoundCloud ? {marginBottom: 166} : {};
-                    $viewImage.expandImage(arg);
 
                     this.active = true;
 
@@ -330,6 +336,9 @@ if (Meteor.isClient) {
                         }, 500);
                     }
                 }
+
+                var arg = isSoundCloud ? {marginBottom: 166} : {};
+                $viewImage.expandImage(arg);
 
                 this.didFirstUpdate = true;
 
@@ -462,7 +471,6 @@ if (Meteor.isClient) {
         }, {
             main: function(id) {
                 var customRoute = customRoutes[id];
-                console.log('main!', customRoute, '"'+id+'"'); //REM
                 if (!id) { Session.set('sortType', 'newest'); }
                 if (customRoute || !id) { id = null; }
                 if (customRoute) { customRoute(); }
