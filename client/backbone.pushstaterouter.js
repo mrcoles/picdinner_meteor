@@ -61,20 +61,22 @@
                 // they have a `data-bypass` attribute or don't match
                 // a route.
                 $(document).on('click', 'a:not([data-bypass])', function (evt) {
-                    var href = $(this).prop('href'), // look at the full URL
+                    var $this = $(this),
+                        href = $this.prop('href'), // look at the full URL
+                        hrefAttr = $this.attr('href'),
                         baseUrl = window.location.href
                         .split('/')
                         .slice(0,3)
                         .join('/') + '/';
 
                     // Verify that we are still on the same domain and protocol
-                    if (href.indexOf(baseUrl) == 0) {
+                    // and that it's not a hash link.
+                    if (href.indexOf(baseUrl) == 0 && hrefAttr.indexOf('#') != 0) {
+                        href = href.slice(baseUrl.length - 1);
 
                         // Get the fragment for the `loadUrl` call
-                        // (technically not required for `router.navigate`).
-                        var fragment = Backbone.history.getFragment(
-                            href.slice(baseUrl.length - 1)
-                        );
+                        // (technically redundant for `router.navigate`).
+                        var fragment = Backbone.history.getFragment(href);
 
                         // Navigate to the proper page, don't trigger loadUrl.
                         router.navigate(fragment, false);

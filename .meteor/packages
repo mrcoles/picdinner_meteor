@@ -7,3 +7,6 @@ preserve-inputs
 bootstrap
 less
 backbone
+accounts-ui
+accounts-password
+accounts-twitter

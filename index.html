@@ -9,6 +9,7 @@
     <div id="wrapper">
         {{> head}}
         <div id="container">
+            {{> options}}
             {{> pairs}}
         </div>
 
@@ -44,6 +45,20 @@
     <div id="head">
         <h1>picDinner!</h1>
         <a id="add" href="/add" onclick="return false">+ add</a>
+    </div>
+</template>
+
+<!-- head template -->
+<template name="options">
+    <div class="options clearfix">
+        <ul class="left unstyled">
+            <li><a href="/" class="{{newest}}">newest</a></li>
+            {{#comment}}<li><a href="/top" class="{{top}}">top</a></li>{{/comment}}
+            {{#if currentUser}}<li><a href="/user/{{currentUser._id}}" class="{{user}}">you</a></li>{{/if}}
+        </ul>
+        <div class="right">
+            {{loginButtons}}
+        </div>
     </div>
 </template>
 
@@ -125,7 +140,7 @@
         {{/comment}}
         <div id="pair-info" class="shares">
             {{> sharesSecondary}}
-            <a class="close" href="/" onclick="return false" title="picDinner home">&times;</a>
+            <a class="close" href="{{backUrl}}" onclick="return false" title="picDinner home">&times;</a>
         </div>
     {{/if}}</div>
     {{#isolate}}
