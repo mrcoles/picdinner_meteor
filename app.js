@@ -380,6 +380,10 @@ if (Meteor.isClient) {
         }
     };
 
+    Template.viewPair.pairId = function() {
+        return Session.get('currentPairId');
+    };
+
     Template.viewPair.pair = function() {
         var p = Pairs.findOne({'_id': Session.get('currentPairId')});
         Session.set('currentCreated', p ? p.created : null);
