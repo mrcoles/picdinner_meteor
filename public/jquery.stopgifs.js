@@ -13,6 +13,11 @@
     $.fn.stopgifs = function(opts) {
         opts = $.extend({}, $.stopgifs.defaults, opts);
 
+        // no hover animate on touch
+        if (navigator.userAgent.match(/(iPhone|iPad)/i)) {
+            opts.hoverAnimate = false;
+        }
+
         return this.each(function() {
             var $img = $(this);
             if ($img.data('stopgifsSetup')) return;

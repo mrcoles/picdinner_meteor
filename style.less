@@ -149,7 +149,7 @@ body,h1 {
 
 @pair-dim: 160px;
 
-.pair {
+a.pair {
     float: left;
     .box-sizing;
     border: 4px solid #999;
@@ -201,7 +201,7 @@ body,h1 {
 @pair-margin: 2%;
 @pair-cols: 4;
 #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
-.pair {
+a.pair {
     .pairWidth(@pair-width, @pair-margin);
 
 }
@@ -212,7 +212,7 @@ body,h1 {
     @pair-margin: 3.33%;
     @pair-cols: 3;
     #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
-    .pair { .pairWidth(@pair-width, @pair-margin); }
+    a.pair { .pairWidth(@pair-width, @pair-margin); }
 }
 
 @media (max-width: 480px) {
@@ -220,7 +220,7 @@ body,h1 {
     @pair-margin: 2%;
     @pair-cols: 2;
     #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
-    .pair { .pairWidth(@pair-width, @pair-margin); }
+    a.pair { .pairWidth(@pair-width, @pair-margin); }
 }
 
 @media (max-width: 320px) {
@@ -228,7 +228,7 @@ body,h1 {
     @pair-margin: 0;
     @pair-cols: 1;
     #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
-    .pair { .pairWidth(@pair-width, @pair-margin); }
+    a.pair { .pairWidth(@pair-width, @pair-margin); }
 }
 
 
