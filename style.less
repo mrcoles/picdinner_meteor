@@ -304,6 +304,8 @@ a.pair {
 
 /** prev and next arrows */
 
+@arrow-height: 86px;
+
 .prev-arrow {
     position: fixed;
     left: 0;
@@ -334,7 +336,7 @@ a.pair {
         top: 50%;
         margin-top: -43px;
         width: 60px;
-        height: 86px;
+        height: @arrow-height;
         background: rgba(255, 255, 255, .5);
         border-radius: 10px;
         text-indent: 120%;
@@ -367,6 +369,21 @@ a.pair {
             border-width: 30px 0 30px 30px;
         }
     }
+}
+
+a#mobile-play {
+    position: fixed;
+    display: block;
+    top: 32%;
+    left: 25%;
+    width: 50%;
+    height: @arrow-height;
+    line-height: @arrow-height;
+    color: #111;
+    background: #eee;
+    background: rgba(255, 255, 255, .8);
+    text-align: center;
+    z-index: 502;
 }
 
 /* **/

@@ -50,7 +50,10 @@ function lookupNext(currentCreated, prev) {
 
 if (Meteor.isClient) {
 
+    var isMobile = navigator.userAgent.match(/(iPhone|iPad)/i);
+
     function log() {
+        //alert(Array.prototype.slice.call(arguments).join(' '));
         try {
             console.log.apply(console, arguments);
         } catch(e) {}
@@ -303,9 +306,14 @@ if (Meteor.isClient) {
                     this.audio = au;
                     this.pairId = pairId;
 
+                    if (isMobile) {
+                        Session.set('showMobilePlay', !isSoundCloud);
+                    }
+
                     if (isSoundCloud) {
                         $viewImage.fadeOut(0);
                         scWidget.load(pair.audio, {
+                            //auto_play: true,
                             callback: function() {
                                 log('[CALLBACK]');
                                 $('#widget').fadeIn('slow');
@@ -373,6 +381,7 @@ if (Meteor.isClient) {
                 scWidget.pause();
                 $('#widget').hide();
                 $('#view-image').expandImage('clear');
+                Session.set('showMobilePlay', false);
             }
         },
         toggleAudio: function() {
@@ -380,6 +389,14 @@ if (Meteor.isClient) {
                 this.audio[this.audio.paused ? 'play' : 'pause']();
             } else {
                 scWidget.toggle();
+            }
+        },
+        playAudio: function() {
+            if (this.audio) {
+                this.audio.play();
+                Session.set('showMobilePlay', false);
+            } else {
+                scWidget.play();
             }
         },
         isSoundCloud: function(audio) {
@@ -409,6 +426,11 @@ if (Meteor.isClient) {
 
     Template.viewPair.backUrl = getBackUrl;
 
+    Template.viewPair.mobileClick = function() {
+        return isMobile && Session.get('currentPairId') &&
+            Session.get('showMobilePlay');
+    };
+
     Template.viewPair.rendered = function() {
         viewer.update(Session.get('currentPairId'), Template.viewPair.pair());
         SharesLoader.load();
@@ -423,10 +445,15 @@ if (Meteor.isClient) {
         'click a.close': function(e) {
             e.preventDefault();
             Session.set('currentPairId', null);
+        },
+        'click a#mobile-play': function(e) {
+            e.preventDefault();
+            viewer.playAudio();
         }
     });
 
     Meteor.startup(function() {
+
         $(window).on('keyup', function(e) {
             if (viewer.active) {
                 if (e.which == 27) {
@@ -501,10 +528,13 @@ if (Meteor.isClient) {
             log('[READY]');
             scWidget.bind(SC.Widget.Events.PLAY, function() {
                 log('[PLAY]');
-                if (viewer.pairId && viewer.audio) {
-                    log('  PAUSING!', viewer.pairId, viewer.audio);
-                    scWidget.pause();
-                }
+
+                $('#widget').fadeIn('slow');
+                // if (viewer.pairId && viewer.audio) {
+                //     log('  PAUSING!', viewer.pairId, viewer.audio);
+                //     scWidget.pause();
+                // }
+
                 // // get information about currently playing sound
                 // scWidget.getCurrentSound(function(currentSound) {
                 //     console.log('sound ' + currentSound.title + 'began to play');
