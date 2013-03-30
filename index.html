@@ -9,12 +9,15 @@
 <body>
     <div id="wrapper">
         {{> head}}
+
+        {{#isolate}}
         {{#unless currentPairId}}
         <div id="content" class="container">
             {{> options}}
             {{> pairs}}
         </div>
         {{/unless}}
+        {{/isolate}}
 
         <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
             {{> addPair}}

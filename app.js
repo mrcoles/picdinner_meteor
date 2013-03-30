@@ -178,11 +178,13 @@ if (Meteor.isClient) {
                 }
                 Session.set('lastCreated', lastCreated);
                 self._updateState();
+                window.scrollTo(0, 0);
             },
             popNewest: function() {
                 var lastCreated = self.lastCreatedStack.pop() || null;
                 Session.set('lastCreated', lastCreated);
                 self._updateState();
+                window.scrollTo(0, 0);
             },
             _updateState: function() {
                 setIfNotEqual('hasPrev', self.lastCreatedStack.length != 0);
@@ -524,7 +526,7 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
-    var pairsLimit = 15;
+    var pairsLimit = 24;
 
     Meteor.publish('pairs', function(lastCreated, sortType, viewUserId) {
         var query = {},
