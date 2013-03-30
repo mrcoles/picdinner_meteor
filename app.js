@@ -268,12 +268,12 @@ if (Meteor.isClient) {
     Template.sharesPrimary.shareUrls = function() {
         //TODO - not have to do the stupid list as a hack
         //       to use parent templates, e.g., sharesPrimary
-        return [{shareUrl: 'http://picdinner.com'}];
+        return [{shareUrl: 'http://picdinner.com', noFb: false}];
     };
 
     Template.sharesSecondary.shareUrls = function() {
         var id = Session.get('currentPairId');
-        return id ? [{shareUrl: 'http://picdinner.com/'+id}] : [];
+        return id ? [{shareUrl: 'http://picdinner.com/'+id, noFb: false}] : [];
     };
 
     //
@@ -303,22 +303,27 @@ if (Meteor.isClient) {
 
                     if (isSoundCloud) {
                         $viewImage.fadeOut(0);
-                        scWidget.load(pair.audio, {
+                        scWidget.load(pair.audio.replace(/^https/, 'http'), {
                             callback: function() {
                                 log('[CALLBACK]');
                                 $('#widget').fadeIn('slow');
-                                scWidget.play();
-                                $viewImage.fadeIn();
 
-                                // HACK sometimes soundcloud fails to start
+                                // HACK wait a moment before play
                                 Meteor.setTimeout(function() {
-                                    scWidget.isPaused(function(paused) {
-                                        if (paused && viewer.pairId == pairId) {
-                                            log('  still paused, hitting play again.');
-                                            scWidget.play();
-                                        }
-                                    });
-                                }, 500);
+                                    scWidget.play();
+                                    $viewImage.fadeIn();
+
+                                    // HACK sometimes soundcloud fails to start
+                                    Meteor.setTimeout(function() {
+                                        scWidget.isPaused(function(paused) {
+                                            if (paused &&
+                                                viewer.pairId == pairId) {
+                                                log('  still paused, hitting play again.');
+                                                scWidget.play();
+                                            }
+                                        });
+                                    }, 500);
+                                }, 2000);
                             }
                         });
                     }
