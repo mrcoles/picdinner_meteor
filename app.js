@@ -303,7 +303,7 @@ if (Meteor.isClient) {
 
                     if (isSoundCloud) {
                         $viewImage.fadeOut(0);
-                        scWidget.load(pair.audio.replace(/^https/, 'http'), {
+                        scWidget.load(pair.audio, {
                             callback: function() {
                                 log('[CALLBACK]');
                                 $('#widget').fadeIn('slow');
@@ -383,10 +383,6 @@ if (Meteor.isClient) {
         isSoundCloud: function(audio) {
             return audio && /^https?:\/\/soundcloud.com\/.+/i.test(audio);
         }
-    };
-
-    Template.viewPair.pairId = function() {
-        return Session.get('currentPairId');
     };
 
     Template.viewPair.pair = function() {

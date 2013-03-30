@@ -1,0 +1,11 @@
+
+.modal {
+    &.fade { top: -400px; }
+    &.in,
+    &.fade.in { top: 50px; }
+    margin-top: 0;
+}
+
+@media (max-height: 520px) {
+    .modal { position: absolute; }
+}

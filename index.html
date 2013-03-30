@@ -9,10 +9,12 @@
 <body>
     <div id="wrapper">
         {{> head}}
+        {{#unless currentPairId}}
         <div id="content" class="container">
             {{> options}}
             {{> pairs}}
         </div>
+        {{/unless}}
 
         <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
             {{> addPair}}
@@ -130,7 +132,7 @@
 
 <!-- viewPair template -->
 <template name="viewPair">
-    <div id="view-pair"{{#unless pairId}} class="hide" aria-hidden="true"{{/unless}}>{{#if pair}}
+    <div id="view-pair"{{#unless currentPairId}} class="hide" aria-hidden="true"{{/unless}}>{{#if pair}}
         {{#isolate}}
         <img id="view-image" src="{{pair.image}}"{{#if isSoundCloud pair.audio}} class="full"{{/if}}>
         {{/isolate}}
