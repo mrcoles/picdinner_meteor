@@ -9,7 +9,7 @@
 <body>
     <div id="wrapper">
         {{> head}}
-        <div id="container">
+        <div id="content" class="container">
             {{> options}}
             {{> pairs}}
         </div>
@@ -23,7 +23,7 @@
 
     </div>
 
-    <div id="footer">
+    <div id="footer" class="container">
         <div class="left" id="history">
             {{> history}}
         </div>
@@ -43,9 +43,9 @@
 
 <!-- head template -->
 <template name="head">
-    <div id="head">
+    <div id="head" class="container">
         <h1>picDinner!</h1>
-        <a id="add" href="/add" onclick="return false">+ add</a>
+        <a id="add" href="/add" onclick="return false"><span>+</span> <em>add</em></a>
     </div>
 </template>
 
@@ -71,7 +71,7 @@
     <div id="pairs">{{#each pairs}}
         <a href="/{{_id}}" class="pair" data-id="{{_id}}" data-image="{{image}}" data-audio="{{audio}}" data-created="{{created}}"><img src="{{image}}"></a>{{/each}}
     </div>
-    <div class="pagination pairs-align">
+    <div class="pagination">
         {{#if hasPrev}}<a class="prev" href="#" onclick="return false">← previous</a>{{/if}}
         {{#if hasPrev}}{{#if hasNext}} | {{/if}}{{/if}}
         {{#if hasNext}}<a class="next" href="#" onclick="return false">next →</a>{{/if}}

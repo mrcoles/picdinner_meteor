@@ -19,12 +19,16 @@ html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
        -o-transition: @transition;
           transition: @transition;
 }
-
-
 .border-radius(@radius) {
     -webkit-border-radius: @radius;
        -moz-border-radius: @radius;
             border-radius: @radius;
+}
+.box-sizing(@sizing: border-box) {
+    -ms-box-sizing: @sizing;
+    -moz-box-sizing: @sizing;
+    -webkit-box-sizing: @sizing;
+    box-sizing: @sizing;
 }
 
 
@@ -39,32 +43,28 @@ body,h1 {
     color: #333;
 }
 
-#head,
-#container,
-#footer {
+.container {
     position: relative;
     margin: 0 auto;
-    max-width: @container-max - (@container-pad * 2);
-    min-width: @container-min - (@container-pad * 2);
+    .box-sizing;
+    max-width: @container-max;
+    min-width: @container-min;
+    // padding defined in responsive seciton lower down
+    // with .pairs
 }
 
-#container {
-    padding: 0 @container-pad;
-    padding-bottom: 60px;
+#content {
+    padding: 0 @container-pad 60px;
 }
 
 #footer {
     margin-top: -60px;
     min-height: 40px;
-    padding: 10px 0;
+    padding: 10px @container-pad;
 
-    >div {
-        padding: 0 20px;
-
-        &.right {
-            padding-right: 0;
-            clear: left;
-        }
+    .right {
+        clear: left;
+        padding-left: 20px;
     }
 }
 
@@ -120,13 +120,18 @@ body,h1 {
     }
 }
 
+#add em { font-style: normal; }
+@media (max-width: 600px) {
+    #add em { display: none; }
+    #add span { padding: 0 @container-pad/2; }
+}
+
 .left { float: left; }
 .right { float: right; }
 .strong { font-weight: bold; }
 
 .options {
-    padding: 0 @container-pad 20px;
-
+    padding-bottom: @container-pad;
     li {
         float: left;
         margin-right: @container-pad;
@@ -136,27 +141,24 @@ body,h1 {
 #pairs {
     position: relative;
     width: 100%;
-    left: @container-pad;
+    min-height: 640px;
+    left: 0;
     overflow: hidden;
     zoom: 1;
 }
 
-.pairs-align {
-    padding: 0 @container-pad;
-}
-
-@pair-dim: 140px;
+@pair-dim: 160px;
 
 .pair {
     float: left;
+    .box-sizing;
     border: 4px solid #999;
     padding: 6px;
-    width: @pair-dim;
     height: @pair-dim;
     overflow: hidden;
-    margin: 0 20px 20px 0;
+    margin: 0 0 20px 0;
     text-align: center;
-    line-height: @pair-dim;
+    line-height: @pair-dim - 20;
     font-size: 0;
     background: @pair-bg;
     border-radius: 4px;
@@ -168,11 +170,67 @@ body,h1 {
 
     canvas,
     img {
-        max-width: @pair-dim;
-        max-height: @pair-dim;
+        max-width: 100%;
+        max-height: 100%;
         vertical-align: middle;
     }
 }
+
+
+// #pairs width algorithm:
+// for n columns of .pair
+// with width of w%
+// and margin-right of m%
+//
+// width is: 100 * ((m / (n*w + (n-1)*m)) + 1)
+//
+// derived by solving the following system of equations and removing w:
+// n * (a + m) = w + m // width of pairs + margins == parent width + margin
+// w * pairsWidth = w + m // computed with of pairs == width + margin
+//
+.pairsWidth(@n, @w, @m) {
+    width: 100*((@m / (@n*@w + (@n - 1)*@m)) + 1) + .001;
+}
+.pairWidth(@w, @m) {
+    width: @w;
+    margin-right: @m;
+}
+
+
+@pair-width: 23%;
+@pair-margin: 2%;
+@pair-cols: 4;
+#pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
+.pair {
+    .pairWidth(@pair-width, @pair-margin);
+
+}
+
+
+@media (max-width: 768px) {
+    @pair-width: 30%;
+    @pair-margin: 3.33%;
+    @pair-cols: 3;
+    #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
+    .pair { .pairWidth(@pair-width, @pair-margin); }
+}
+
+@media (max-width: 480px) {
+    @pair-width: 48%;
+    @pair-margin: 2%;
+    @pair-cols: 2;
+    #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
+    .pair { .pairWidth(@pair-width, @pair-margin); }
+}
+
+@media (max-width: 320px) {
+    @pair-width: 100%;
+    @pair-margin: 0;
+    @pair-cols: 1;
+    #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
+    .pair { .pairWidth(@pair-width, @pair-margin); }
+}
+
 
 #view-pair {
     position: fixed;
