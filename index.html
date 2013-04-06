@@ -102,11 +102,12 @@
     </div>
     <form style="margin:0;padding:0">
         <div class="modal-body">
+            {{#if errorMessage}}<div class="text-error">{{errorMessage}}</div>{{/if}}
             <div class="row">
                 <p class="span5">
                     Link directly to any picture—maybe something from
                     <a href="http://reddit.com/r/gifs" target="_blank">r/gifs</a> or
-                    <a href="http://www.quickmeme.com/" target="_blank">quickmeme</a> or
+                    <a href="http://reddit.com/r/woahdude" target="_blank">r/woahdude</a> or
                     <a href="http://imgur.com/">imgur</a>…
                 </p>
             </div>
@@ -126,6 +127,7 @@
         </div>
         <div class="modal-footer">
             <div class="row"><div class="span5">
+                    <span class="left indicator" aria-hidden="true">loading</span>
                     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
                     <button class="btn btn-primary" type="submit">Add</button>
             </div></div>

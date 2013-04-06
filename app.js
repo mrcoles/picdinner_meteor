@@ -79,15 +79,6 @@ if (Meteor.isClient) {
     });
 
     //
-    // Head
-    //
-    Template.head.events({
-        'click #add': function() {
-            $('#add-pair').modal();
-        }
-    });
-
-    //
     // Options
     //
     Template.options.sortType = function() {
@@ -107,14 +98,27 @@ if (Meteor.isClient) {
         return Session.get('formNoImage');
     };
 
+    Template.addPair.errorMessage = function() {
+        return Session.get('formErrorMessage');
+    };
+
+    // used to hide modal without changing url
+    var skipSettingUrl = false;
+
     Template.addPair.events({
         'submit form': function(e) {
             e.preventDefault();
+
             var $form = $(e.target),
                 $image = $form.find('input[name=image]'),
                 $audio = $form.find('input[name=audio]'),
                 image = $image.val(),
                 audio = $audio.val();
+
+            if ($form.hasClass('loading')) {
+                return;
+            }
+            $form.addClass('loading');
 
             if (!audio) { audio = 'song.mp3'; }
 
@@ -142,23 +146,39 @@ if (Meteor.isClient) {
                 data.userId = Meteor.userId();
             }
 
-            var id = Pairs.insert(data);
+            var id = Pairs.insert(data, function(error, _id) {
+                if (error) {
+                    log('[SAVE ERROR]', error);
+                    Session.set('formErrorMessage', 'There was an error saving this :\'(');
+                    $form.removeClass('loading');
+                } else {
+                    recents.add(_id);
+                    $form.find('input').val('');
+                    Session.set('formErrorMessage', null);
+                    Session.set('formNoImage', false);
+                    Session.set('currentPairId', _id);
 
-            recents.add(id);
+                    Backbone.history.navigate('/'+_id);
 
-            $form.find('input').val('');
-            Session.set('formNoImage', false);
-            $('#add-pair').modal('hide');
+                    skipSettingUrl = true;
+                    $('#add-pair').modal('hide');
+                    $form.removeClass('loading');
+                }
+            });
         },
         'change input, keyup input': function() {
+            Session.set('formErrorMessage', null);
             Session.set('formNoImage', false);
         }
     });
 
     Meteor.startup(function() {
         // other options: hidden, show, shown
-        $('#add-pair').on('hide', function() {
-            Backbone.history.navigate(getBackUrl(), true);
+        $('#add-pair').on('hide', function(e, skipHistory) {
+            if (!skipSettingUrl) {
+                Backbone.history.navigate(getBackUrl(), true);
+            }
+            skipSettingUrl = false;
         });
     });
 
@@ -304,11 +324,11 @@ if (Meteor.isClient) {
                         });
                     if (au) {
                         $(au).on('play', function(e) {
-                            log('[PLAY]', e);
+                            log('[AU.PLAY]', e);
                         }).on('playing', function(e) {
-                            log('[PLAYING]', e);
+                            log('[AU.PLAYING]', e);
                         }).on('ended', function(e) {
-                            log('[ENDED]', e);
+                            log('[AU.ENDED]', e);
                             if (!tryNext()) {
                                 au.play();
                             }
@@ -327,11 +347,15 @@ if (Meteor.isClient) {
                         scWidget.load(pair.audio, {
                             //auto_play: true,
                             callback: function() {
-                                log('[CALLBACK]');
+                                log('[SC.CALLBACK]');
                                 $('#widget').fadeIn('slow');
 
                                 // HACK wait a moment before play
                                 Meteor.setTimeout(function() {
+                                    if (viewer.pairId != pairId) {
+                                        return;
+                                    }
+
                                     scWidget.play();
                                     $viewImage.fadeIn();
 
@@ -549,24 +573,13 @@ if (Meteor.isClient) {
         scWidget = SC.Widget('widget');
 
         scWidget.bind(SC.Widget.Events.READY, function() {
-            log('[READY]');
+            log('[SC.READY]');
             scWidget.bind(SC.Widget.Events.PLAY, function() {
-                log('[PLAY]');
-
+                log('[SC.PLAY]');
                 $('#widget').fadeIn('slow');
-                // if (viewer.pairId && viewer.audio) {
-                //     log('  PAUSING!', viewer.pairId, viewer.audio);
-                //     scWidget.pause();
-                // }
-
-                // // get information about currently playing sound
-                // scWidget.getCurrentSound(function(currentSound) {
-                //     console.log('sound ' + currentSound.title + 'began to play');
-                // });
             });
 
             scWidget.bind(SC.Widget.Events.FINISH, tryNext);
-            //scWidget.play();
         });
     });
 }
