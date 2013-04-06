@@ -38,9 +38,9 @@ function createdNow() {
     return (new Date()).getTime();
 }
 
-function lookupNext(currentCreated, prev) {
+function lookupNext(currentCreated, prev, asFind) {
     if (!currentCreated) return null;
-    return Pairs.findOne({
+    return Pairs[asFind ? 'find' : 'findOne']({
         created: prev ? {'$gt': currentCreated} : {'$lt': currentCreated}
     }, {
         sort: {'created': prev ? 1 : -1},
@@ -67,9 +67,9 @@ if (Meteor.isClient) {
 
     // auto update pair subscription when it changes
     Deps.autorun(function() {
-        var curPairId = Session.get('curPairId'),
-            lastCreated = Session.get('lastCreated'),
+        var curPairId = Session.get('currentPairId'),
             curCreated = Session.get('currentCreated'),
+            lastCreated = Session.get('lastCreated'),
             sortType = Session.get('sortType'),
             viewUserId = Session.get('viewUserId');
         Meteor.subscribe('pairs', lastCreated, sortType, viewUserId);
@@ -422,14 +422,14 @@ if (Meteor.isClient) {
         return p;
     };
 
-    Template.viewPair.nextPair = function() {
-        var currentCreated = Session.get('currentCreated');
-        return lookupNext(currentCreated, false);
-    };
-
     Template.viewPair.prevPair = function() {
         var currentCreated = Session.get('currentCreated');
         return lookupNext(currentCreated, true);
+    };
+
+    Template.viewPair.nextPair = function() {
+        var currentCreated = Session.get('currentCreated');
+        return lookupNext(currentCreated, false);
     };
 
     Template.viewPair.isSoundCloud = function(audio) {
@@ -596,11 +596,11 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('prevPair', function(currentCreated) {
-        return lookupNext(currentCreated, true);
+        return lookupNext(currentCreated, true, true);
     });
 
     Meteor.publish('nextPair', function(currentCreated) {
-        return lookupNext(currentCreated, false);
+        return lookupNext(currentCreated, false, true);
     });
 
     Meteor.startup(function () {
