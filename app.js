@@ -299,10 +299,22 @@ if (Meteor.isClient) {
                     this.clear();
                     var au = isSoundCloud ? null :
                         $.extend(new Audio(), {
-                            autoplay: true,
-                            loop: true,
-                            src: pair.audio
+                            //loop: true, - manage loop in `ended`
+                            autoplay: true
                         });
+                    if (au) {
+                        $(au).on('play', function(e) {
+                            log('[PLAY]', e);
+                        }).on('playing', function(e) {
+                            log('[PLAYING]', e);
+                        }).on('ended', function(e) {
+                            log('[ENDED]', e);
+                            if (!tryNext()) {
+                                au.play();
+                            }
+                        });
+                        au.src = pair.audio;
+                    }
                     this.audio = au;
                     this.pairId = pairId;
 
@@ -518,6 +530,18 @@ if (Meteor.isClient) {
         });
     });
 
+
+    function tryNext() {
+        var $next = $('#next-pair');
+        log('[FINISH]', '$next', $next.attr('href'));
+        if ($next.size()) {
+            scWidget.pause();
+            Backbone.history.navigate($next.attr('href'), true);
+            return true;
+        }
+        return false;
+    }
+
     Meteor.startup(function() {
 
         // SoundCloud html5 widget
@@ -541,14 +565,7 @@ if (Meteor.isClient) {
                 // });
             });
 
-            scWidget.bind(SC.Widget.Events.FINISH, function() {
-                var $next = $('#next-pair');
-                log('[FINISH]', '$next', $next.attr('href'));
-                if ($next.size()) {
-                    scWidget.pause();
-                    Backbone.history.navigate($next.attr('href'), true);
-                }
-            });
+            scWidget.bind(SC.Widget.Events.FINISH, tryNext);
             //scWidget.play();
         });
     });
