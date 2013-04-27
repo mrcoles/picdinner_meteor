@@ -72,16 +72,18 @@
 
 <!-- pairs template -->
 <template name="pairs">
-    {{#unless pair}}
-    <div id="pairs">{{#each pairs}}
-        <a href="/{{_id}}" class="pair" data-id="{{_id}}" data-image="{{image}}" data-audio="{{audio}}" data-created="{{created}}"><img src="{{image}}"></a>{{/each}}
+    <div id="pairs">
+        {{#each pairs}}
+        <a href="/{{_id}}" class="pair" data-created="{{created}}">
+            <img src="{{#if thumb}}{{thumb}}{{else}}{{image}}{{/if}}" {{#if thumb}}class="thumb" data-fullsrc="{{image}}"{{/if}}>
+        </a>
+        {{/each}}
     </div>
     <div class="pagination">
         {{#if hasPrev}}<a class="prev" href="#" onclick="return false">← previous</a>{{/if}}
         {{#if hasPrev}}{{#if hasNext}} | {{/if}}{{/if}}
         {{#if hasNext}}<a class="next" href="#" onclick="return false">next →</a>{{/if}}
     </div>
-    {{/unless}}
 </template>
 
 <!-- history template -->

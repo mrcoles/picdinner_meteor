@@ -10,6 +10,8 @@
         }
     };
 
+    var cache = {};
+
     $.fn.stopgifs = function(opts) {
         opts = $.extend({}, $.stopgifs.defaults, opts);
 
@@ -20,7 +22,17 @@
 
         return this.each(function() {
             var $img = $(this);
-            if ($img.data('stopgifsSetup')) return;
+
+            if ($img.data('stopgifsSetup'))
+                return;
+
+            $img.data('stopgifsSetup', true);
+
+            if ($img.hasClass('thumb')) {
+                $img.thumbgifs(opts);
+                return;
+            }
+
             $img.hide();
 
             var $parent = $img.parent(),
@@ -28,18 +40,26 @@
                 height = opts.height ? opts.height : $parent.height(),
                 $canvas = $('<canvas>').insertAfter($img),
                 canvas = $canvas.get(0),
-                ctx = canvas.getContext('2d');
+                ctx = canvas.getContext('2d'),
+                src = $img.attr('src'),
+                cached = cache[src];
 
-            $img.data('stopgifsSetup', true);
-
-            function updateDims() {
+            function updateDims(img) {
                 canvas.width = width;
                 canvas.height = height;
+                if (img) {
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+                }
             }
 
             updateDims();
 
-            if (opts.background) {
+            if (cached) {
+                height = cached.height;
+                width = cached.width;
+                updateDims(cached.img);
+            } else if (opts.background) {
                 ctx.fillStyle = $.isFunction(opts.background) ?
                     opts.background() : opts.background;
                 ctx.fillRect(0, 0, width, height);
@@ -59,7 +79,7 @@
             function load() {
                 // separate function for hoverAnimate
                 $('<img>', {
-                    src: $img.attr('src'),
+                    src: src,
                     load: function() {
                         var w = this.width,
                             h = this.height,
@@ -68,19 +88,77 @@
                             ratio = ratioW < ratioH ? ratioW : ratioH;
                         width = w * ratio;
                         height = h * ratio;
-                        updateDims();
-                        ctx.clearRect(0, 0, width, height);
-                        ctx.drawImage(this, 0, 0, width, height);
+                        cache[src] = {
+                            img: this,
+                            width: width,
+                            height: height
+                        };
+                        updateDims(this);
                     },
                     error: function() {
                         (opts.parentClosest ?
                          $img.closest(opts.parentClosest) :
                          $img).hide();
+                        console.log('bad image src', src);
                     }
                 });
             }
-            load();
+            !cached && load();
         });
     };
 
+    $.fn.thumbgifs = function(opts) {
+        return this.each(function() {
+            if (!opts.hoverAnimate)
+                return;
+
+            var $img = $(this),
+                src = $img.data(opts.dataSrc || 'fullsrc'),
+                $parent = $img.parent(),
+                inited = false,
+                hovering = false,
+                $fullImg;
+
+            function hoverOn() {
+                $img.hide();
+                $fullImg.show();
+            }
+            function hoverOut() {
+                $fullImg.hide();
+                $img.show();
+            }
+
+            function init() {
+                inited = true;
+                var $loader = $('<img>', {
+                    src: src,
+                    'class': opts.fullClass || 'full-image',
+                    load: function() {
+                        $fullImg = $loader.appendTo($parent).hide();
+                        if (hovering) {
+                            hoverOn();
+                        }
+                    },
+                    error: function() {
+                        (opts.parentClosest ?
+                         $img.closest(opts.parentClosest) :
+                         $img).hide();
+                        console.log('bad image src', src);
+                    }
+                });
+            }
+
+            $parent.hover(function() {
+                if (!inited) {
+                    init();
+                } else {
+                    hoverOn();
+                }
+                hovering = true;
+            }, function() {
+                hoverOut();
+                hovering = false;
+            });
+        });
+    };
 })(jQuery, this);

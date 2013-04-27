@@ -128,12 +128,12 @@ if (Meteor.isClient) {
                 return;
             }
 
-            var _rImgur = /^https?:\/\/imgur.com/i,
+            var _rImgur = /^https?:\/\/([^\/]*\.)?imgur.com/i,
                 _rSuffix = /\.[^\/]+$/i;
 
             if (_rImgur.test(image) && !_rSuffix.test(image)) {
                 var t = image.split('/').pop();
-                image = 'http://imgur.com/' + t + '.gif';
+                image = 'http://i.imgur.com/' + t + '.gif';
             }
 
             var data = {
@@ -229,7 +229,11 @@ if (Meteor.isClient) {
         if (lastCreated) {
             query.created = {'$lt': lastCreated};
         }
-        return Pairs.find(query, {sort: {"created": -1}});
+        var pairs = Pairs.find(query, {sort: {"created": -1}}).fetch();
+        return pairs.map(function(pair) {
+            pair.thumb = thumbnailer(pair.image);
+            return pair;
+        });
     };
 
     Template.pairs.events({
@@ -635,6 +639,15 @@ if (Meteor.isServer) {
                     }
                     Pairs.update({_id: x._id}, {$set: {created: t}});
                 };
+            });
+        },
+        fixImgur: function() {
+            Pairs.find({}).forEach(function(x) {
+                var imgur = 'http://imgur.com', img;
+                if (x.image.indexOf(imgur) == 0) {
+                    img = 'http://i.imgur.com' + x.image.slice(imgur.length);
+                    Pairs.update({_id: x._id}, {$set: {image: img}});
+                }
             });
         }
     });
