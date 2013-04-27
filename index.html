@@ -11,12 +11,12 @@
         {{> head}}
 
         {{#isolate}}
-        {{#unless currentPairId}}
         <div id="content" class="container">
             {{> options}}
-            {{> pairs}}
+            <div id="fader" class="fader">
+                {{> pairs}}
+            </div>
         </div>
-        {{/unless}}
         {{/isolate}}
 
         <div id="add-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Add a pair" aria-hidden="true">
@@ -79,11 +79,13 @@
         </a>
         {{/each}}
     </div>
+    {{#isolate}}
     <div class="pagination">
         {{#if hasPrev}}<a class="prev" href="#" onclick="return false">← previous</a>{{/if}}
         {{#if hasPrev}}{{#if hasNext}} | {{/if}}{{/if}}
         {{#if hasNext}}<a class="next" href="#" onclick="return false">next →</a>{{/if}}
     </div>
+    {{/isolate}}
 </template>
 
 <!-- history template -->

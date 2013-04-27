@@ -121,6 +121,14 @@ body,h1 {
     }
 }
 
+.fader {
+    .transition(opacity 2s linear);
+
+    &.out {
+        opacity: 0;
+    }
+}
+
 #add em { font-style: normal; }
 @media (max-width: 600px) {
     #add em { display: none; }

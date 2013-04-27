@@ -59,6 +59,14 @@ if (Meteor.isClient) {
         } catch(e) {}
     }
 
+    var renderLogDebug = false;
+    function renderLog() {
+        if (!renderLogDebug) return;
+        try {
+            console.log.apply(console, arguments);
+        } catch(e) {}
+    }
+
     function setIfNotEqual(attr, val) {
         if (!Session.equals(attr, val)) {
             Session.set(attr, val);
@@ -72,6 +80,7 @@ if (Meteor.isClient) {
             lastCreated = Session.get('lastCreated'),
             sortType = Session.get('sortType'),
             viewUserId = Session.get('viewUserId');
+        renderLog('[SUBSCRIBE.PAIRS]', lastCreated, sortType, viewUserId, curPairId, curCreated);
         Meteor.subscribe('pairs', lastCreated, sortType, viewUserId);
         Meteor.subscribe('pair', curPairId);
         Meteor.subscribe('prevPair', curCreated, sortType, viewUserId);
@@ -230,6 +239,7 @@ if (Meteor.isClient) {
             query.created = {'$lt': lastCreated};
         }
         var pairs = Pairs.find(query, {sort: {"created": -1}}).fetch();
+        renderLog('[PAIRS]', pairs.length);
         return pairs.map(function(pair) {
             pair.thumb = thumbnailer(pair.image);
             return pair;
@@ -240,6 +250,8 @@ if (Meteor.isClient) {
         'click .next': Paginator.addNewest,
         'click .prev': Paginator.popNewest
     });
+
+    var pairsFaderTimeout;
 
     Template.pairs.rendered = function() {
         var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
@@ -254,6 +266,15 @@ if (Meteor.isClient) {
             parentClosest: '.pair',
             background: bgFn
         });
+
+        if (Session.equals('currentPairId', null)) {
+            pairsFaderTimeout = Meteor.setTimeout(function() {
+                $('#fader').removeClass('out');
+            }, 500);
+        } else {
+            Meteor.clearTimeout(pairsFaderTimeout);
+            $('#fader').addClass('out');
+        }
     };
 
     //
@@ -651,6 +672,20 @@ if (Meteor.isServer) {
             });
         }
     });
+}
+
+if (Meteor.isClient) {
+    function logRenders() {
+        _.each(Template, function (template, name) {
+            var oldRender = template.rendered;
+            var counter = 0;
+            template.rendered = function () {
+                renderLog('[RENDER]', name, 'render count: ', ++counter);
+                oldRender && oldRender.apply(this, arguments);
+            };
+        });
+    }
+    logRenders();
 }
 
 
