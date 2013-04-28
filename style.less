@@ -122,9 +122,10 @@ body,h1 {
 }
 
 .fader {
-    .transition(opacity 2s linear);
+    .transition(opacity 1s .5s linear);
 
     &.out {
+        .transition(opacity 0 0 linear);
         opacity: 0;
     }
 }

@@ -251,8 +251,6 @@ if (Meteor.isClient) {
         'click .prev': Paginator.popNewest
     });
 
-    var pairsFaderTimeout;
-
     Template.pairs.rendered = function() {
         var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
             $pairs = $('#pairs'),
@@ -266,15 +264,6 @@ if (Meteor.isClient) {
             parentClosest: '.pair',
             background: bgFn
         });
-
-        if (Session.equals('currentPairId', null)) {
-            pairsFaderTimeout = Meteor.setTimeout(function() {
-                $('#fader').removeClass('out');
-            }, 500);
-        } else {
-            Meteor.clearTimeout(pairsFaderTimeout);
-            $('#fader').addClass('out');
-        }
     };
 
     //
@@ -493,8 +482,10 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.rendered = function() {
-        viewer.update(Session.get('currentPairId'), Template.viewPair.pair());
+        var currentPairId = Session.get('currentPairId');
+        viewer.update(currentPairId, Template.viewPair.pair());
         SharesLoader.load();
+        $('#fader')[currentPairId ? 'addClass' : 'removeClass']('out');
     };
 
     Template.viewPair.events({
