@@ -389,18 +389,40 @@ a.pair {
 }
 
 a#mobile-play {
+    @height: 200px;
+
     position: fixed;
     display: block;
-    top: 32%;
-    left: 25%;
-    width: 50%;
-    height: @arrow-height;
-    line-height: @arrow-height;
+    top: 50%;
+    left: 50%;
+    width: @height;
+    height: @height;
+    margin-left: -@height/2;
+    margin-top: -@height/1.6;
+    .border-radius(@height/2);
     color: #111;
-    background: #eee;
-    background: rgba(255, 255, 255, .8);
+    background: #111;
+    background: rgba(0, 0, 0, .8);
+    line-height: @height;
     text-align: center;
     z-index: 502;
+
+    &:after {
+        @dim: @height/4;
+        content: "";
+        position: absolute;
+        display: block;
+        top: 50%;
+        left: 50%;
+        margin-left: -@dim/3;
+        margin-top: -@dim;
+        height: 0;
+        width: 0;
+        border: 0 solid transparent;
+        border-width: @dim 0 @dim @dim;
+        border-left-color: #fff;
+        vertical-align: middle;
+    }
 }
 
 /* **/

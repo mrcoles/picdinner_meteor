@@ -339,6 +339,7 @@ if (Meteor.isClient) {
                     if (au) {
                         $(au).on('play', function(e) {
                             log('[AU.PLAY]', e);
+                            Session.set('showMobilePlay', false);
                         }).on('playing', function(e) {
                             log('[AU.PLAYING]', e);
                         }).on('ended', function(e) {
