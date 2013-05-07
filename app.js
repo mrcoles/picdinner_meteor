@@ -382,6 +382,7 @@ if (Meteor.isClient) {
                                 $('#widget').fadeIn('slow');
 
                                 if (!AUTOPLAY) {
+                                    $('body').addClass('paused-sc');
                                     //TODO - better non-autoplay interaction
                                     $viewImage.fadeIn();
                                     return;
@@ -445,6 +446,8 @@ if (Meteor.isClient) {
             }
         },
         clear: function() {
+            $('body').removeClass('paused-sc');
+
             if (this.pairId) {
                 this.pairId = null;
                 if (this.audio) {
@@ -471,6 +474,7 @@ if (Meteor.isClient) {
             } else {
                 scWidget.play();
             }
+            $('body').removeClass('paused-sc');
         },
         isSoundCloud: function(audio) {
             return audio && /^https?:\/\/soundcloud.com\/.+/i.test(audio);
@@ -612,6 +616,7 @@ if (Meteor.isClient) {
             scWidget.bind(SC.Widget.Events.PLAY, function() {
                 log('[SC.PLAY]');
                 $('#widget').fadeIn('slow');
+                $('body').removeClass('paused-sc');
             });
 
             scWidget.bind(SC.Widget.Events.FINISH, tryNext);
