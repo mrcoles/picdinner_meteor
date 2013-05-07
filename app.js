@@ -52,6 +52,11 @@ if (Meteor.isClient) {
 
     var isMobile = navigator.userAgent.match(/(iPhone|iPad)/i);
 
+    function getBackUrl() {
+        return (sortTypeRoutes[Session.get('sortType')] ||
+                sortTypeRoutes.newest)();
+    }
+
     function log() {
         //alert(Array.prototype.slice.call(arguments).join(' '));
         try {
@@ -348,7 +353,17 @@ if (Meteor.isClient) {
                                 au.play();
                             }
                         });
-                        au.src = pair.audio;
+
+                        // cross browser support ogg vs mp3
+                        var src = pair.audio;
+                        if (au.canPlayType('audio/ogg')) {
+                            var sp = src.split('.');
+                            sp.pop();
+                            sp.push('ogg');
+                            src = sp.join('.');
+                        }
+
+                        au.src =  src;
                     }
                     this.audio = au;
                     this.pairId = pairId;
@@ -535,10 +550,6 @@ if (Meteor.isClient) {
             return userId ? '/user/' + userId : sortTypeRoutes.newest();
         }
     };
-    function getBackUrl() {
-        return (sortTypeRoutes[Session.get('sortType')] ||
-                sortTypeRoutes.newest)();
-    }
 
     Meteor.startup(function() {
 
