@@ -50,7 +50,8 @@ function lookupNext(currentCreated, prev, asFind) {
 
 if (Meteor.isClient) {
 
-    var isMobile = navigator.userAgent.match(/(iPhone|iPad)/i);
+    // replace mobile check with AUTOPLAY
+    //var isMobile = navigator.userAgent.match(/(iPhone|iPad)/i);
 
     function getBackUrl() {
         return (sortTypeRoutes[Session.get('sortType')] ||
@@ -339,7 +340,7 @@ if (Meteor.isClient) {
                     var au = isSoundCloud ? null :
                         $.extend(new Audio(), {
                             //loop: true, - manage loop in `ended`
-                            autoplay: true
+                            autoplay: AUTOPLAY
                         });
                     if (au) {
                         $(au).on('play', function(e) {
@@ -368,7 +369,7 @@ if (Meteor.isClient) {
                     this.audio = au;
                     this.pairId = pairId;
 
-                    if (isMobile) {
+                    if (!AUTOPLAY) {
                         Session.set('showMobilePlay', !isSoundCloud);
                     }
 
@@ -379,6 +380,12 @@ if (Meteor.isClient) {
                             callback: function() {
                                 log('[SC.CALLBACK]');
                                 $('#widget').fadeIn('slow');
+
+                                if (!AUTOPLAY) {
+                                    //TODO - better non-autoplay interaction
+                                    $viewImage.fadeIn();
+                                    return;
+                                }
 
                                 // HACK wait a moment before play
                                 Meteor.setTimeout(function() {
@@ -493,7 +500,7 @@ if (Meteor.isClient) {
     Template.viewPair.backUrl = getBackUrl;
 
     Template.viewPair.mobileClick = function() {
-        return isMobile && Session.get('currentPairId') &&
+        return !AUTOPLAY && Session.get('currentPairId') &&
             Session.get('showMobilePlay');
     };
 
