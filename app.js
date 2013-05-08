@@ -541,10 +541,8 @@ if (Meteor.isClient) {
         'touchstart #view-pair, touchmove #view-pair, touchend #view-pair': function(e) {
             var $img = $('#view-image');
 
-            //TODO - figure out proper android move event handling
-            if (navigator.userAgent.match(/Android/i)) {
-                e.preventDefault();
-            }
+            //TODO - need to figure out how to swipe left and right
+            //       to switch the picdin in Android :'( -- works in iOS
 
             if ('touchstart' == e.type) {
                 lastTouchstart = e;
