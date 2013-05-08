@@ -69,6 +69,12 @@ body,h1 {
     }
 }
 
+body.in-viewer {
+    #content, #footer {
+        display: none; // some cleanup while viewer is open
+    }
+}
+
 #head {
     position: relative;
     background: @head-bg;
@@ -323,7 +329,11 @@ a.pair {
 
 @arrow-height: 86px;
 
-.prev-arrow {
+html.touch .arrow {
+    display: none;
+}
+
+.arrow {
     position: fixed;
     left: 0;
     top: 100px;
@@ -422,6 +432,10 @@ a#mobile-play {
         border-width: @dim 0 @dim @dim;
         border-left-color: #fff;
         vertical-align: middle;
+    }
+
+    &.clicked:after {
+        border-left-color: #eee;
     }
 }
 

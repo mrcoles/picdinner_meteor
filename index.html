@@ -152,8 +152,10 @@
         </div>
     {{/if}}</div>
     {{#isolate}}
-    {{#if nextPair}}<a id="next-pair" class="prev-arrow next-arrow" href="/{{nextPair._id}}"><em>next</em></a>{{/if}}
-    {{#if prevPair}}<a id="prev-pair" class="prev-arrow" href="/{{prevPair._id}}"><em>previous</em></a>{{/if}}
+    {{#if nextPair}}<a id="next-pair" class="arrow next-arrow" href="/{{nextPair._id}}"><em>next</em></a>{{/if}}
+    {{#if prevPair}}<a id="prev-pair" class="arrow prev-arrow" href="/{{prevPair._id}}"><em>previous</em></a>{{/if}}
+    {{/isolate}}
+    {{#isolate}}
     {{#if mobileClick}}<a id="mobile-play" href="#" onclick="return false">click to play</a>{{/if}}
     {{/isolate}}
 </template>

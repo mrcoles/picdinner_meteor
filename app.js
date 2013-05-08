@@ -330,6 +330,11 @@ if (Meteor.isClient) {
         pairId: null,
         audio: null,
         update: function(pairId, pair) {
+
+            if (pairId || pair) {
+                $('body').addClass('in-viewer');
+            }
+
             // open
             if (pair) {
                 var isSoundCloud = this.isSoundCloud(pair.audio);
@@ -376,14 +381,12 @@ if (Meteor.isClient) {
                     if (isSoundCloud) {
                         $viewImage.fadeOut(0);
                         scWidget.load(pair.audio, {
-                            //auto_play: true,
                             callback: function() {
                                 log('[SC.CALLBACK]');
                                 $('#widget').fadeIn('slow');
 
                                 if (!AUTOPLAY) {
                                     $('body').addClass('paused-sc');
-                                    //TODO - better non-autoplay interaction
                                     $viewImage.fadeIn();
                                     return;
                                 }
@@ -446,7 +449,7 @@ if (Meteor.isClient) {
             }
         },
         clear: function() {
-            $('body').removeClass('paused-sc');
+            $('body').removeClass('paused-sc').removeClass('in-viewer');
 
             if (this.pairId) {
                 this.pairId = null;
@@ -528,6 +531,37 @@ if (Meteor.isClient) {
         'click a#mobile-play': function(e) {
             e.preventDefault();
             viewer.playAudio();
+            $('#mobile-play').addClass('clicked');
+        }
+    });
+
+    var lastTouchstart = null,
+        lastTouchmove = null;
+    Template.viewPair.events({
+        'touchstart #view-pair, touchmove #view-pair, touchend #view-pair': function(e) {
+            var $img = $('#view-image');
+
+            if ('touchstart' == e.type) {
+                lastTouchstart = e;
+            } else if ('touchmove' == e.type) {
+                lastTouchmove = e;
+                var dx = (e.pageX - lastTouchstart.pageX) * 1.6;
+                if (hasArrow(dx > 0)) {
+                    $img.css('left', dx+'px');
+                }
+            } else if ('touchend' == e.type) {
+                if (lastTouchmove != null) {
+                    var diff = lastTouchmove.pageX -
+                        lastTouchstart.pageX;
+                    if (Math.abs(diff) > 40) {
+                        if (tryArrow(diff > 0)) {
+                            $img.hide();
+                        }
+                    }
+                }
+                $img.css('left', 'auto');
+                lastTouchstart = lastTouchmove = null;
+            }
         }
     });
 
@@ -593,10 +627,17 @@ if (Meteor.isClient) {
         });
     });
 
-
     function tryNext() {
-        var $next = $('#next-pair');
-        log('[FINISH]', '$next', $next.attr('href'));
+        tryArrow();
+    }
+
+    function hasArrow(prev) {
+        return $(prev ? '#prev-pair' : '#next-pair').size();
+    }
+
+    function tryArrow(prev) {
+        var $next = $(prev ? '#prev-pair' : '#next-pair');
+        log('[TRY-NEXT]', prev, '$next', $next.attr('href'));
         if ($next.size()) {
             scWidget.pause();
             Backbone.history.navigate($next.attr('href'), true);
