@@ -553,13 +553,13 @@ if (Meteor.isClient) {
                 if (lastTouchmove != null) {
                     var diff = lastTouchmove.pageX -
                         lastTouchstart.pageX;
-                    if (Math.abs(diff) > 40) {
+                    if (Math.abs(diff) >= window.innerWidth / 4) {
                         if (tryArrow(diff > 0)) {
                             $img.hide();
                         }
                     }
                 }
-                $img.css('left', 'auto');
+                $img.css('left', 0);
                 lastTouchstart = lastTouchmove = null;
             }
         }
