@@ -541,6 +541,11 @@ if (Meteor.isClient) {
         'touchstart #view-pair, touchmove #view-pair, touchend #view-pair': function(e) {
             var $img = $('#view-image');
 
+            //TODO - figure out proper android move event handling
+            if (navigator.userAgent.match(/Android/i)) {
+                e.preventDefault();
+            }
+
             if ('touchstart' == e.type) {
                 lastTouchstart = e;
             } else if ('touchmove' == e.type) {
