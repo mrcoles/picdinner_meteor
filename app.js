@@ -79,6 +79,28 @@ if (Meteor.isClient) {
         }
     }
 
+
+    // seeks the audio in the soundcloud widget a certain number of seconds
+    function seekWidget(seconds) {
+        time = Math.round(seconds * 1000);
+        scWidget.setVolume(0);
+        scWidget.play();
+        Meteor.setTimeout(function () {
+            scWidget.seekTo(time);
+            // this basically waits for the widget to load the sound, continually
+            // seeking to the furthest loaded point until the target is reached
+            scWidget.getPosition(function (position) {
+                if (position >= time)
+                {
+                    scWidget.setVolume(100);
+                    scWidget.play();
+                } else {
+                    seekWidget(seconds);
+                }   
+            });
+        }, 400); // just a guess of the time to wait between seeks here, this could probably be tuned
+    }
+
     // auto update pair subscription when it changes
     Deps.autorun(function() {
         var curPairId = Session.get('currentPairId'),
@@ -127,8 +149,10 @@ if (Meteor.isClient) {
             var $form = $(e.target),
                 $image = $form.find('input[name=image]'),
                 $audio = $form.find('input[name=audio]'),
+                $startTime = $form.find('input[name=startTime]'),
                 image = $image.val(),
-                audio = $audio.val();
+                audio = $audio.val(),
+                startTime = Number($startTime.val());
 
             if ($form.hasClass('loading')) {
                 return;
@@ -154,7 +178,8 @@ if (Meteor.isClient) {
             var data = {
                 image: image,
                 audio: audio,
-                created: createdNow()
+                created: createdNow(),
+                startTime: startTime
             };
 
             if (Meteor.userId()) {
@@ -397,7 +422,12 @@ if (Meteor.isClient) {
                                         return;
                                     }
 
-                                    scWidget.play();
+                                    var startTime = 0;
+                                    if (pair.startTime)
+                                    {
+                                        startTime = pair.startTime;
+                                    }
+                                    seekWidget(startTime);
                                     $viewImage.fadeIn();
 
                                     // HACK sometimes soundcloud fails to start
@@ -406,7 +436,7 @@ if (Meteor.isClient) {
                                             if (paused &&
                                                 viewer.pairId == pairId) {
                                                 log('  still paused, hitting play again.');
-                                                scWidget.play();
+                                                seekWidget(startTime);
                                             }
                                         });
                                     }, 500);
