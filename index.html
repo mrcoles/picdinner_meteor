@@ -103,7 +103,7 @@
 <template name="addPair">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3 id="myModalLabel">Pair up an image and audio!</h3>
+        <h3 id="myModalLabel">Pair up an image with audio!</h3>
     </div>
     <form style="margin:0;padding:0">
         <div class="modal-body">
@@ -128,6 +128,12 @@
                 </p>
             </div>
             <input class="span5" type="text" name="audio" placeholder="URL for a song on soundcloud (optional)">
+            <div class="row">
+                <p class="span5">
+                    Specify a start point for the song
+                </p>
+            </div>
+            <input class="span2" type="text" name="startTime" placeholder="Seconds (optional)">
             <br>
         </div>
         <div class="modal-footer">
