@@ -389,6 +389,7 @@ if (Meteor.isClient) {
             if (pair) {
                 var isSoundCloud = this.isSoundCloud(pair.audio);
                 var $viewImage = $('#view-image');
+                $('html')[isSoundCloud ? 'addClass' : 'removeClass']('is-soundcloud');
 
                 if (!this.pairId || this.pairId != pairId) {
                     this.clear();

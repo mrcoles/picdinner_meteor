@@ -329,10 +329,6 @@ a.pair {
 
 @arrow-height: 86px;
 
-html.touch .arrow {
-    display: none;
-}
-
 .arrow {
     position: fixed;
     left: 0;
@@ -340,7 +336,6 @@ html.touch .arrow {
     bottom: 166px; // stay above soundcloud player
     width: 35%;
     z-index: 501;
-    //background: red;
 
     opacity: 0;
     transition: opacity 1s;
@@ -394,6 +389,52 @@ html.touch .arrow {
         &:after {
             border-color: transparent transparent transparent #111;
             border-width: 30px 0 30px 30px;
+        }
+    }
+}
+
+// show arrows smaller for touch
+html.touch {
+    @dim: 40px;
+    @w: @dim*.35;
+    @r: @dim/5;
+
+    &.is-soundcloud .arrow {
+        bottom: 166px;
+    }
+
+    .arrow {
+        top: auto;
+        bottom: 0;
+        height: @dim;
+        width: @dim;
+
+        &, &:hover {
+            opacity: .5;
+        }
+
+        em {
+            top: 0;
+            left: 0;
+            right: auto;
+            margin: 0;
+            width: @dim;
+            height: @dim;
+            border-radius: 0 @r 0 0;
+
+            &:after {
+                border-width: @w @w @w 0;
+                top: 50%;
+                left: 50%;
+                margin: -@w 0 0 -@w/2;
+            }
+        }
+    }
+
+    .next-arrow em {
+        border-radius: @r 0 0 0;
+        &:after {
+            border-width: @w 0 @w @w;
         }
     }
 }
