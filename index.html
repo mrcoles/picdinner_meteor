@@ -105,43 +105,41 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3 id="myModalLabel">Pair up an image with audio!</h3>
     </div>
-    <form style="margin:0;padding:0">
+    <form>
         <div class="modal-body">
             {{#if errorMessage}}<div class="text-error">{{errorMessage}}</div>{{/if}}
-            <div class="row">
-                <p class="span5">
-                    Link directly to any picture—maybe something from
-                    <a href="http://reddit.com/r/gifs" target="_blank">r/gifs</a> or
-                    <a href="http://reddit.com/r/woahdude" target="_blank">r/woahdude</a> or
-                    <a href="http://imgur.com/">imgur</a>…
-                </p>
-            </div>
+            <p>
+                Link directly to any picture—maybe something from
+                <a href="http://reddit.com/r/gifs" target="_blank">r/gifs</a> or
+                <a href="http://reddit.com/r/woahdude" target="_blank">r/woahdude</a> or
+                <a href="http://imgur.com/">imgur</a>…
+            </p>
             {{#if formNoImage}}<div class="text-error">This field is required.</div>{{/if}}
-            <input class="span5" type="text" name="image" placeholder="URL for an image">
+            <input class="input-block-level" type="text" name="image" placeholder="URL for an image">
             <br><br>
 
-            <div class="row">
-                <p class="span5">
-                    Link to any song on
-                    <a href="https://soundcloud.com/" target="_blank">soundcloud</a>
-                    or enter nothing and use the default song!
+            <p>
+                Link to any song on
+                <a href="https://soundcloud.com/" target="_blank">soundcloud</a>
+                or enter nothing and use the default song!
+            </p>
+            <input class="input-block-level" type="text" name="audio" placeholder="URL for a song on soundcloud (optional)">
+            <br><br>
+
+            <div class="clearfix inline-input">
+                <p>
+                    Set a starting point for the song
                 </p>
+                <input class="input-block-level" type="text" name="startTime" placeholder="Seconds (optional)">
             </div>
-            <input class="span5" type="text" name="audio" placeholder="URL for a song on soundcloud (optional)">
-            <div class="row">
-                <p class="span5">
-                    Specify a start point for the song
-                </p>
-            </div>
-            <input class="span2" type="text" name="startTime" placeholder="Seconds (optional)">
             <br>
         </div>
         <div class="modal-footer">
-            <div class="row"><div class="span5">
-                    <span class="left indicator" aria-hidden="true">loading</span>
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                    <button class="btn btn-primary" type="submit">Add</button>
-            </div></div>
+            <div class="clearfix">
+                <span class="left indicator" aria-hidden="true">loading</span>
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button class="btn btn-primary" type="submit">Add</button>
+            </div>
         </div>
     </form>
 </template>

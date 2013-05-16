@@ -474,3 +474,36 @@ form {
 .loading .indicator {
     display: inline-block;
 }
+
+// add pair modal
+
+#add-pair form {
+    margin: 0;
+    padding: 0;
+}
+
+.inline-input {
+    @p-width: 52%;
+    > p {
+        float: left;
+        margin-left: 0;
+        margin-right: 0;
+        width: @p-width;
+        .box-sizing;
+    }
+    > input {
+        float: left;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100 - @p-width;
+    }
+}
+
+@media (max-width: 580px) {
+    .inline-input {
+        > p,
+        > input {
+            width: 100%;
+        }
+    }
+}
