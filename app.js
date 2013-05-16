@@ -15,23 +15,21 @@ Pairs.allow({
         if (doc.userId && doc.userId != userId) {
             return false;
         }
+        if (doc.start && (typeof doc.start !== 'number' ||
+                          isNaN(doc.start))) {
+            return false;
+        }
         return true;
     },
-    update: function(userId, docs, fields, modifier) {
-        if (fields.userId && fields.userId != userId) {
+    update: function(userId, doc, fields, modifier) {
+        if (_.contains(fields, 'userId')) {
             return false;
         }
         return false;
     },
-    remove: function(userId, docs) {
-        if (!userId) return false;
-        var i = docs.length;
-        while (i--) {
-            if (docs[i].userId != userId) {
-                return false;
-            }
-        }
-        return true;
+    remove: function(userId, doc) {
+        if (!userId || !doc.userId) return false;
+        return userId == doc.userId;
     }
 });
 
@@ -79,29 +77,52 @@ if (Meteor.isClient) {
 
     // seeks the audio in the soundcloud widget a certain number of seconds
     function seekWidget(seconds) {
-        if (!seconds) {
-            scWidget.setVolume(100);
+        var self = seekWidget,
+            playCounter = self.playCounter;
+
+        function playIt(volume) {
+            scWidget.setVolume(volume === undefined ? 100 : volume);
             scWidget.play();
+        }
+
+        if (!seconds) {
+            playIt();
             return;
         }
 
-        time = Math.round(seconds * 1000);
-        scWidget.setVolume(0);
-        scWidget.play();
-        Meteor.setTimeout(function() {
-            scWidget.seekTo(time);
-            // this basically waits for the widget to load the sound, continually
-            // seeking to the furthest loaded point until the target is reached
-            scWidget.getPosition(function(position) {
-                if (position >= time) {
-                    scWidget.setVolume(100);
-                    scWidget.play();
-                } else {
-                    seekWidget(seconds);
-                }
-            });
-        }, 200); // TODO fine tune this delay
+        var time = Math.round(seconds * 1000);
+        playIt(0);
+
+        scWidget.getDuration(function(duration) {
+            if (time >= duration) {
+                playIt();
+            }
+
+            (function doSeek() {
+                scWidget.seekTo(time);
+                // this basically waits for the widget to load the sound, continually
+                // seeking to the furthest loaded point until the target is reached
+                scWidget.getPosition(function(position) {
+                    if (self.playCounter == playCounter) {
+                        if (position >= time) {
+                            playIt();
+                        } else {
+                            seekWidget.timeout = Meteor.setTimeout(doSeek, 200);
+                        }
+                    }
+                });
+            })();
+        });
     }
+    _.extend(seekWidget, {
+        playCounter: 0,
+        stop: function() {
+            var self = seekWidget;
+            Meteor.clearTimeout(self.timeout);
+            self.playCounter++;
+        }
+    });
+
 
     // auto update pair subscription when it changes
     Deps.autorun(function() {
@@ -154,7 +175,7 @@ if (Meteor.isClient) {
                 $startTime = $form.find('input[name=startTime]'),
                 image = $image.val(),
                 audio = $audio.val(),
-                startTime = Number($startTime.val());
+                startTime = parseFloat($startTime.val());
 
             if ($form.hasClass('loading')) {
                 return;
@@ -162,6 +183,8 @@ if (Meteor.isClient) {
             $form.addClass('loading');
 
             if (!audio) { audio = 'song.mp3'; }
+
+            if (isNaN(startTime) || startTime < 0) { startTime = 0; }
 
             if (!image) {
                 Session.set('formNoImage', true);
@@ -685,6 +708,7 @@ if (Meteor.isClient) {
         // SoundCloud html5 widget
         // [docs](http://developers.soundcloud.com/docs/api/html5-widget)
         scWidget = SC.Widget('widget');
+        window.scWidget = scWidget; //TODO - unexpose this
 
         scWidget.bind(SC.Widget.Events.READY, function() {
             log('[SC.READY]');
@@ -695,6 +719,10 @@ if (Meteor.isClient) {
             });
 
             scWidget.bind(SC.Widget.Events.FINISH, tryNext);
+
+            _.each(['PAUSE', 'FINISH'], function(x) {
+                scWidget.bind(SC.Widget.Events[x], seekWidget.stop);
+            });
         });
     });
 }
