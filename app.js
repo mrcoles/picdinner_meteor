@@ -82,23 +82,28 @@ if (Meteor.isClient) {
 
     // seeks the audio in the soundcloud widget a certain number of seconds
     function seekWidget(seconds) {
+        if (!seconds) {
+            scWidget.setVolume(100);
+            scWidget.play();
+            return;
+        }
+
         time = Math.round(seconds * 1000);
         scWidget.setVolume(0);
         scWidget.play();
-        Meteor.setTimeout(function () {
+        Meteor.setTimeout(function() {
             scWidget.seekTo(time);
             // this basically waits for the widget to load the sound, continually
             // seeking to the furthest loaded point until the target is reached
-            scWidget.getPosition(function (position) {
-                if (position >= time)
-                {
+            scWidget.getPosition(function(position) {
+                if (position >= time) {
                     scWidget.setVolume(100);
                     scWidget.play();
                 } else {
                     seekWidget(seconds);
-                }   
+                }
             });
-        }, 400); // just a guess of the time to wait between seeks here, this could probably be tuned
+        }, 200); // TODO fine tune this delay
     }
 
     // auto update pair subscription when it changes
@@ -423,8 +428,7 @@ if (Meteor.isClient) {
                                     }
 
                                     var startTime = 0;
-                                    if (pair.startTime)
-                                    {
+                                    if (pair.startTime) {
                                         startTime = pair.startTime;
                                     }
                                     seekWidget(startTime);
