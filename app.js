@@ -5,6 +5,7 @@
 // *   remixing of an existing picdinner
 // *   simple gif search - maybe just scrape http://www.reddit.com/r/woahdude.json & http://www.reddit.com/r/gifs.json?
 // *   simple soundcloud search
+// *   embed script to put on other pages
 //
 
 Pairs = new Meteor.Collection('pairs');
@@ -50,16 +51,12 @@ function lookupNext(currentCreated, prev, asFind) {
 
 if (Meteor.isClient) {
 
-    // replace mobile check with AUTOPLAY
-    //var isMobile = navigator.userAgent.match(/(iPhone|iPad)/i);
-
     function getBackUrl() {
         return (sortTypeRoutes[Session.get('sortType')] ||
                 sortTypeRoutes.newest)();
     }
 
     function log() {
-        //alert(Array.prototype.slice.call(arguments).join(' '));
         try {
             console.log.apply(console, arguments);
         } catch(e) {}
