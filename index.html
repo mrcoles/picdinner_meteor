@@ -151,8 +151,8 @@
         <img id="view-image" src="{{pair.image}}"{{#if isSoundCloud pair.audio}} class="full"{{/if}}>
         {{/isolate}}
         <div id="pair-info" class="shares">
-            {{> sharesSecondary}}
-            <a class="close" href="{{backUrl}}" onclick="return false" title="picDinner home">&times;</a>
+            {{#unless isTouch}}{{> sharesSecondary}}{{/unless}}
+            <a class="close" href="{{backUrl}}" title="picDinner home">&times;</a>
         </div>
     {{/if}}</div>
     {{#isolate}}

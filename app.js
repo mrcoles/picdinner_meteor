@@ -571,6 +571,10 @@ if (Meteor.isClient) {
         return viewer.isSoundCloud(audio);
     };
 
+    Template.viewPair.isTouch = function() {
+        return $('html').hasClass('touch');
+    };
+
     Template.viewPair.backUrl = getBackUrl;
 
     Template.viewPair.mobileClick = function() {
@@ -590,10 +594,6 @@ if (Meteor.isClient) {
             if (e.target.id == 'view-pair') {
                 Session.set('currentPairId', null);
             }
-        },
-        'click a.close': function(e) {
-            e.preventDefault();
-            Session.set('currentPairId', null);
         },
         'click a#mobile-play': function(e) {
             e.preventDefault();
