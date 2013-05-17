@@ -822,7 +822,7 @@ if (Meteor.isServer) {
     });
 }
 
-if (Meteor.isClient) {
+if (Meteor.isClient && renderLogDebug) {
     function logRenders() {
         _.each(Template, function (template, name) {
             var oldRender = template.rendered;
@@ -834,6 +834,30 @@ if (Meteor.isClient) {
         });
     }
     logRenders();
+
+    if (false) {
+        var wrappedFind = Meteor.Collection.prototype.find;
+        Meteor.Collection.prototype.find = function() {
+                var cursor = wrappedFind.apply(this, arguments);
+                var collectionName = this._name;
+
+            cursor.observeChanges({
+                added: function (id, fields) {
+                    renderLog('[FIND]', collectionName, 'added', id, fields);
+                },
+                changed: function (id, fields) {
+                    renderLog('[FIND]', collectionName, 'changed', id, fields);
+                },
+                movedBefore: function (id, before) {
+                    renderLog('[FIND]', collectionName, 'movedBefore', id, before);
+                },
+                removed: function (id) {
+                    renderLog('[FIND]', collectionName, 'removed', id);
+                }
+            });
+            return cursor;
+        };
+    }
 }
 
 
