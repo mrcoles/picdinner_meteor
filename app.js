@@ -323,41 +323,6 @@ if (Meteor.isClient) {
     };
 
     //
-    // History
-    //
-    var recents = {
-        get: function() {
-            var h, th;
-            try {
-                th = JSON.parse(localStorage.getItem('recents'));
-                h = [];
-                _.each(th, function(x) {
-                    if (x) { h.push(x); }
-                });
-            } catch(e) {}
-            if (!h) { h = []; }
-            return h;
-        },
-        add: function(_id) {
-            var h = recents.get();
-            if (_id) h.unshift(_id);
-            h = h.slice(0, 5);
-            localStorage.setItem('recents', JSON.stringify(h));
-            Session.set('recents', h);
-            return recents;
-        }
-    };
-    recents.add();
-
-    Template.history.history = function() {
-        var names = 'Dengus, Paynuss, Fibbus, Chonus, Taargus'.split(', '),
-            i = 0;
-        return _.map(Session.get('recents'), function(id) {
-            return {id: id, name: names[i++] || id};
-        });
-    };
-
-    //
     // Shares Base
     //
     Template.sharesPrimary.shareUrls = function() {
