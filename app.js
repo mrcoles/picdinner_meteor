@@ -434,7 +434,7 @@ if (Meteor.isClient) {
                         scWidget.load(pair.audio, {
                             callback: function() {
                                 log('[SC.CALLBACK]');
-                                $('#widget').fadeIn('slow');
+                                viewer.fadeInWidget();
 
                                 if (!AUTOPLAY) {
                                     $('body').addClass('paused-sc');
@@ -513,9 +513,18 @@ if (Meteor.isClient) {
                     this.audio = null;
                 }
                 scWidget.pause();
-                $('#widget').hide();
+                viewer.fadeInWidget(false);
                 $('#view-image').expandImage('clear');
                 Session.set('showMobilePlay', false);
+            }
+        },
+        fadeInWidget: function(fadeIn) {
+            if (fadeIn === undefined || fadeIn) {
+                $('#widget').fadeIn(1000);
+                $('html').addClass('show-widget');
+            } else {
+                $('#widget').hide();
+                $('html').removeClass('show-widget');
             }
         },
         toggleAudio: function() {
@@ -715,7 +724,7 @@ if (Meteor.isClient) {
             log('[SC.READY]');
             scWidget.bind(SC.Widget.Events.PLAY, function() {
                 log('[SC.PLAY]');
-                $('#widget').fadeIn('slow');
+                viewer.fadeInWidget();
                 $('body').removeClass('paused-sc');
             });
 

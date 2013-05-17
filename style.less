@@ -338,10 +338,7 @@ a.pair {
     z-index: 501;
 
     opacity: 0;
-    transition: opacity 1s;
-    -moz-transition: opacity 1s;
-    -webkit-transition: opacity 1s;
-    -o-transition: opacity 1s;
+    .transition(opacity 1s ease-in);
 
     &:hover {
         opacity: 1;
@@ -403,14 +400,22 @@ html.touch {
         bottom: 166px;
     }
 
+    &.show-widget {
+        .arrow, .arrow:hover {
+            .transition(opacity 2s ease-in);
+            opacity: .5
+        }
+    }
+
     .arrow {
+        .transition(opacity 0s ease-in);
         top: auto;
         bottom: 0;
         height: @dim;
         width: @dim;
 
         &, &:hover {
-            opacity: .5;
+            opacity: 0;
         }
 
         em {
