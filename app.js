@@ -599,8 +599,19 @@ if (Meteor.isClient) {
         }
     });
 
-    var lastTouchstart = null,
-        lastTouchmove = null;
+    // get the x position of the most recent touch event
+    // or fallback to this one
+    function getX(event) {
+        try {
+            return event.touches[0].pageX;
+        } catch(e) {
+            return event.pageX;
+        }
+    }
+
+    var startX = null,
+        moveX = null;
+
     Template.viewPair.events({
         'touchstart #view-pair, touchmove #view-pair, touchend #view-pair': function(e) {
             if (!$(e.target).closest('#pair-info').size()) {
@@ -611,21 +622,17 @@ if (Meteor.isClient) {
 
             var $img = $('#view-image');
 
-            //TODO - need to figure out how to swipe left and right
-            //       to switch the picdin in Android :'( -- works in iOS
-
             if ('touchstart' == e.type) {
-                lastTouchstart = e;
+                startX = getX(e);
             } else if ('touchmove' == e.type) {
-                lastTouchmove = e;
-                var dx = (e.pageX - lastTouchstart.pageX) * 1.6;
+                moveX = getX(e);
+                var dx = (moveX - startX) * 1.6;
                 if (hasArrow(dx > 0)) {
                     $img.css('left', dx+'px');
                 }
             } else if ('touchend' == e.type) {
-                if (lastTouchmove != null) {
-                    var diff = lastTouchmove.pageX -
-                        lastTouchstart.pageX;
+                if (moveX != null) {
+                    var diff = moveX - startX;
                     if (Math.abs(diff) >= window.innerWidth / 4) {
                         if (tryArrow(diff > 0)) {
                             $img.hide();
@@ -633,7 +640,7 @@ if (Meteor.isClient) {
                     }
                 }
                 $img.css('left', 0);
-                lastTouchstart = lastTouchmove = null;
+                startX = moveX = null;
             }
         }
     });
