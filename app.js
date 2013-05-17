@@ -132,7 +132,7 @@ if (Meteor.isClient) {
             sortType = Session.get('sortType'),
             viewUserId = Session.get('viewUserId');
         renderLog('[SUBSCRIBE.PAIRS]', lastCreated, sortType, viewUserId, curPairId, curCreated);
-        Meteor.subscribe('pairs', lastCreated, sortType, viewUserId);
+        Meteor.subscribe('pairs', curPairId, lastCreated, sortType, viewUserId);
         Meteor.subscribe('pair', curPairId);
         Meteor.subscribe('prevPair', curCreated, sortType, viewUserId);
         Meteor.subscribe('nextPair', curCreated, sortType, viewUserId);
@@ -757,7 +757,11 @@ if (Meteor.isServer) {
 
     var pairsLimit = 24;
 
-    Meteor.publish('pairs', function(lastCreated, sortType, viewUserId) {
+    Meteor.publish('pairs', function(pairId, lastCreated, sortType, viewUserId) {
+        if (pairId) {
+            return null;
+        }
+
         var query = {},
             sort = {'created': -1};
 
