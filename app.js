@@ -446,7 +446,7 @@ if (Meteor.isClient) {
                             $h.addClass('go');
                             Meteor.setTimeout(function() {
                                 $h.removeClass('trans').removeClass('go');
-                            }, 4000);
+                            }, 2000);
                         }, 500);
                     }
                 }
