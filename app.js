@@ -603,6 +603,12 @@ if (Meteor.isClient) {
         lastTouchmove = null;
     Template.viewPair.events({
         'touchstart #view-pair, touchmove #view-pair, touchend #view-pair': function(e) {
+            if (!$(e.target).closest('#pair-info').size()) {
+                // only stop touch events that aren't hitting
+                // useful things
+                e.preventDefault();
+            }
+
             var $img = $('#view-image');
 
             //TODO - need to figure out how to swipe left and right
