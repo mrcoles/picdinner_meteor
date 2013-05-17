@@ -399,6 +399,8 @@ if (Meteor.isClient) {
                             autoplay: AUTOPLAY
                         });
                     if (au) {
+                        $('html').addClass('show-arrows');
+
                         $(au).on('play', function(e) {
                             log('[AU.PLAY]', e);
                             Session.set('showMobilePlay', false);
@@ -505,6 +507,7 @@ if (Meteor.isClient) {
         },
         clear: function() {
             $('body').removeClass('paused-sc').removeClass('in-viewer');
+            $('html').removeClass('show-arrows');
 
             if (this.pairId) {
                 this.pairId = null;
@@ -521,10 +524,10 @@ if (Meteor.isClient) {
         fadeInWidget: function(fadeIn) {
             if (fadeIn === undefined || fadeIn) {
                 $('#widget').fadeIn(1000);
-                $('html').addClass('show-widget');
+                $('html').addClass('show-arrows');
             } else {
                 $('#widget').hide();
-                $('html').removeClass('show-widget');
+                $('html').removeClass('show-arrows');
             }
         },
         toggleAudio: function() {
