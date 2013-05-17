@@ -47,6 +47,7 @@ function lookupNext(currentCreated, prev, asFind) {
     });
 }
 
+
 if (Meteor.isClient) {
 
     function getBackUrl() {
@@ -124,6 +125,14 @@ if (Meteor.isClient) {
     });
 
 
+
+    // ugh sniff mobile to show fewer pairs per page
+    var mobileUserAgentsRes = [/mobile/i, /android/i, /iphone/i, /ipad/i];
+    var isMobile = _.any(mobileUserAgentsRes, function(re) {
+        return re.test(navigator.userAgent);
+    });
+    var pairsLimit = isMobile ? 12 : 24;
+
     // auto update pair subscription when it changes
     Deps.autorun(function() {
         var curPairId = Session.get('currentPairId'),
@@ -132,7 +141,8 @@ if (Meteor.isClient) {
             sortType = Session.get('sortType'),
             viewUserId = Session.get('viewUserId');
         renderLog('[SUBSCRIBE.PAIRS]', lastCreated, sortType, viewUserId, curPairId, curCreated);
-        Meteor.subscribe('pairs', curPairId, lastCreated, sortType, viewUserId);
+        Meteor.subscribe('pairs', curPairId, lastCreated, sortType,
+                         viewUserId, pairsLimit);
         Meteor.subscribe('pair', curPairId);
         Meteor.subscribe('prevPair', curCreated, sortType, viewUserId);
         Meteor.subscribe('nextPair', curCreated, sortType, viewUserId);
@@ -719,10 +729,7 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-
-    var pairsLimit = 24;
-
-    Meteor.publish('pairs', function(pairId, lastCreated, sortType, viewUserId) {
+    Meteor.publish('pairs', function(pairId, lastCreated, sortType, viewUserId, limit) {
         if (pairId) {
             return null;
         }
@@ -739,7 +746,7 @@ if (Meteor.isServer) {
         if (lastCreated) {
             query.created = {'$lt': lastCreated};
         }
-        return Pairs.find(query, {sort: sort, limit: pairsLimit});
+        return Pairs.find(query, {sort: sort, limit: limit});
     });
 
     Meteor.publish('pair', function(pairId) {
