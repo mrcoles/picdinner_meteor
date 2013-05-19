@@ -406,8 +406,17 @@ if (Meteor.isClient) {
                     }
                 }
 
-                var arg = isSoundCloud ? {marginBottom: 166} : {};
-                $viewImage.expandImage(arg);
+                // manually update image content to prevent reactive flickers
+                if ($viewImage.attr('src') != pair.image) {
+                    var opts = {};
+                    if (isSoundCloud) {
+                        opts.marginBottom = 166;
+                        $viewImage.addClass('full');
+                    } else {
+                        $viewImage.removeClass('full');
+                    }
+                    $viewImage.attr('src', pair.image).expandImage(opts);
+                }
 
                 this.didFirstUpdate = true;
 
@@ -549,6 +558,18 @@ if (Meteor.isClient) {
         return p;
     };
 
+    function voteState(pair, upvoted) {
+        var key = (upvoted === undefined || upvoted === true) ?
+            'upvoters' : 'downvoters';
+        return pair && pair[key] && _.contains(pair[key], Meteor.userId());
+    }
+    Template.viewPair.hasUpvoted = function(pair) {
+        return voteState(pair, true);
+    };
+    Template.viewPair.hasDownvoted = function(pair) {
+        return voteState(pair, false);
+    };
+
     Template.viewPair.prevPair = function() {
         var currentCreated = Session.get('currentCreated');
         return lookupNext(currentCreated, true);
@@ -591,6 +612,16 @@ if (Meteor.isClient) {
             e.preventDefault();
             viewer.playAudio();
             $('#mobile-play').addClass('clicked');
+        },
+        'click .vote': function(e) {
+            var $this = $(e.target).closest('.vote'),
+                isUp = $this.hasClass('up'),
+                isActive = $this.hasClass('active'),
+                method = (isUp ?
+                          (isActive ? 'cancelUpvotePair' : 'upvotePair') :
+                          (isActive ? 'cancelDownvotePair' : 'downvotePair'));
+
+            Meteor.call(method, Session.get('currentPairId'));
         }
     });
 
@@ -754,7 +785,15 @@ if (Meteor.isServer) {
 
         var query = {},
             sort = {'created': -1},
-            options = {limit: pairsLimit};
+            options = {
+                limit: pairsLimit,
+                fields: {
+                    _id: 1,
+                    audio: 1,
+                    image: 1,
+                    created: 1
+                }
+            };
 
         if (page > 1) {
             options.skip = (page-1)*pairsLimit;

@@ -50,7 +50,7 @@ body,h1 {
     max-width: @container-max;
     min-width: @container-min;
     width: auto !important; // beat out the boostrap responsive stuff
-    // padding defined in responsive seciton lower down
+    // padding defined in responsive section lower down
     // with .pairs
 }
 
@@ -288,7 +288,7 @@ a.pair {
         top: 10px;
         right: 0;
         z-index: 10;
-        opacity: .15;
+        opacity: .5;
 
         &:hover {
             opacity: 1;
@@ -307,6 +307,31 @@ a.pair {
         opacity: 1;
     }
 
+}
+
+.vote {
+    float: right;
+    clear: right;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0 10px 10px;
+    background: transparent url(/vote-sprite.png) scroll no-repeat 0 0;
+    text-indent: 110%;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &.active {
+        background-position: -20px 0;
+    }
+
+    &.down {
+        background-position: 0 -20px;
+
+        &.active {
+            background-position: -20px -20px;
+        }
+    }
 }
 
 #widget {

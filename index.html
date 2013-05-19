@@ -146,10 +146,15 @@
 <!-- viewPair template -->
 <template name="viewPair">
     <div id="view-pair"{{#unless currentPairId}} class="hide" aria-hidden="true"{{/unless}}>{{#if pair}}
-        {{#isolate}}
-        <img id="view-image" src="{{pair.image}}"{{#if isSoundCloud pair.audio}} class="full"{{/if}}>
-        {{/isolate}}
+        {{#constant}}
+        <img id="view-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+        {{/constant}}
         <div id="pair-info" class="shares">
+            {{#if currentUser}}
+            <a class="vote up{{#if hasUpvoted pair}} active{{/if}}" href="#" onclick="return false">Upvote</a>
+            <a class="vote down{{#if hasDownvoted pair}} active{{/if}}" href="#" onclick="return false">Downvote</a>
+            {{/if}}
+
             <a class="close" href="{{backUrl}}" title="picDinner home">&times;</a>
         </div>
     {{/if}}</div>

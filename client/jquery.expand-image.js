@@ -49,7 +49,7 @@
         if (arg == 'clear') {
             clearDims();
         } else {
-            opts = $.extend({}, defaultOpts, $.isPlainObject(arg) ? arg : {});
+            opts = $.extend({}, defaultOpts, arg);
             $img = this.first();
             getDims($img.attr('src'));
         }
