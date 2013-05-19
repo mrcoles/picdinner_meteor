@@ -384,38 +384,6 @@ if (Meteor.isClient) {
 
                 if (!this.pairId || this.pairId != pairId) {
                     this.clear();
-                    var au = isSoundCloud ? null :
-                        $.extend(new Audio(), {
-                            //loop: true, - manage loop in `ended`
-                            autoplay: AUTOPLAY
-                        });
-                    if (au) {
-                        $('html').addClass('show-arrows');
-
-                        $(au).on('play', function(e) {
-                            log('[AU.PLAY]', e);
-                            Session.set('showMobilePlay', false);
-                        }).on('playing', function(e) {
-                            log('[AU.PLAYING]', e);
-                        }).on('ended', function(e) {
-                            log('[AU.ENDED]', e);
-                            if (!tryNext()) {
-                                au.play();
-                            }
-                        });
-
-                        // cross browser support ogg vs mp3
-                        var src = pair.audio;
-                        if (au.canPlayType('audio/ogg')) {
-                            var sp = src.split('.');
-                            sp.pop();
-                            sp.push('ogg');
-                            src = sp.join('.');
-                        }
-
-                        au.src =  src;
-                    }
-                    this.audio = au;
                     this.pairId = pairId;
 
                     if (!AUTOPLAY) {
@@ -423,50 +391,15 @@ if (Meteor.isClient) {
                     }
 
                     if (isSoundCloud) {
-                        $viewImage.fadeOut(0);
-                        scWidget.load(pair.audio, {
-                            callback: function() {
-                                log('[SC.CALLBACK]');
-                                viewer.fadeInWidget();
-
-                                if (!AUTOPLAY) {
-                                    $('body').addClass('paused-sc');
-                                    $viewImage.fadeIn();
-                                    return;
-                                }
-
-                                // HACK wait a moment before play
-                                Meteor.setTimeout(function() {
-                                    if (viewer.pairId != pairId) {
-                                        return;
-                                    }
-
-                                    var startTime = 0;
-                                    if (pair.startTime) {
-                                        startTime = pair.startTime;
-                                    }
-                                    seekWidget(startTime);
-                                    $viewImage.fadeIn();
-
-                                    // HACK sometimes soundcloud fails to start
-                                    Meteor.setTimeout(function() {
-                                        scWidget.isPaused(function(paused) {
-                                            if (paused &&
-                                                viewer.pairId == pairId) {
-                                                log('  still paused, hitting play again.');
-                                                seekWidget(startTime);
-                                            }
-                                        });
-                                    }, 500);
-                                }, 2000);
-                            }
-                        });
+                        this.playSoundCloud(pair, pairId, $viewImage);
+                    } else {
+                        this.playSimple(pair.audio);
                     }
 
                     this.active = true;
 
+                    // animate header on first page load (if viewing a pair)
                     if (!this.didFirstUpdate) {
-                        // animate head
                         var $h = $('#head').addClass('trans');
                         Meteor.setTimeout(function() {
                             $h.addClass('go');
@@ -495,6 +428,78 @@ if (Meteor.isClient) {
                 this.active = false;
                 this.didFirstUpdate = true;
             }
+        },
+        playSimple: function(audio) {
+            var au = $.extend(new Audio(), {
+                //loop: true, - manage loop in `ended`
+                autoplay: AUTOPLAY
+            });
+
+            $('html').addClass('show-arrows');
+
+            $(au).on('play', function(e) {
+                log('[AU.PLAY]', e);
+                Session.set('showMobilePlay', false);
+            }).on('playing', function(e) {
+                log('[AU.PLAYING]', e);
+            }).on('ended', function(e) {
+                log('[AU.ENDED]', e);
+                if (!tryNext()) {
+                    au.play();
+                }
+            });
+
+            // cross browser support ogg vs mp3
+            var src = audio;
+            if (au.canPlayType('audio/ogg')) {
+                var sp = src.split('.');
+                sp.pop();
+                sp.push('ogg');
+                src = sp.join('.');
+            }
+
+            au.src =  src;
+            this.audio = au;
+        },
+        playSoundCloud: function(pair, pairId, $viewImage) {
+            $viewImage.fadeOut(0);
+            scWidget.load(pair.audio, {
+                callback: function() {
+                    log('[SC.CALLBACK]');
+                    viewer.fadeInWidget();
+
+                    if (!AUTOPLAY) {
+                        $('body').addClass('paused-sc');
+                        $viewImage.fadeIn();
+                        return;
+                    }
+
+                    // HACK wait a moment before play
+                    Meteor.setTimeout(function() {
+                        if (viewer.pairId != pairId) {
+                            return;
+                        }
+
+                        var startTime = 0;
+                        if (pair.startTime) {
+                            startTime = pair.startTime;
+                        }
+                        seekWidget(startTime);
+                        $viewImage.fadeIn();
+
+                        // HACK sometimes soundcloud fails to start
+                        Meteor.setTimeout(function() {
+                            scWidget.isPaused(function(paused) {
+                                if (paused &&
+                                    viewer.pairId == pairId) {
+                                    log('  still paused, hitting play again.');
+                                    seekWidget(startTime);
+                                }
+                            });
+                        }, 500);
+                    }, 2000);
+                }
+            });
         },
         clear: function() {
             $('body').removeClass('paused-sc').removeClass('in-viewer');
