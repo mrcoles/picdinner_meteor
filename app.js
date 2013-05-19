@@ -137,12 +137,11 @@ if (Meteor.isClient) {
     Deps.autorun(function() {
         var curPairId = Session.get('currentPairId'),
             curCreated = Session.get('currentCreated'),
-            lastCreated = Session.get('lastCreated'),
             sortType = Session.get('sortType'),
-            viewUserId = Session.get('viewUserId');
-        renderLog('[SUBSCRIBE.PAIRS]', lastCreated, sortType, viewUserId, curPairId, curCreated);
-        Meteor.subscribe('pairs', curPairId, lastCreated, sortType,
-                         viewUserId, pairsLimit);
+            viewUserId = Session.get('viewUserId'),
+            page = Session.get('page');
+        renderLog('[SUBSCRIBE.PAIRS]', sortType, viewUserId, curPairId, curCreated);
+        Meteor.subscribe('pairs', sortType, page, pairsLimit, curPairId, viewUserId);
         Meteor.subscribe('pair', curPairId);
         Meteor.subscribe('prevPair', curCreated, sortType, viewUserId);
         Meteor.subscribe('nextPair', curCreated, sortType, viewUserId);
@@ -259,62 +258,22 @@ if (Meteor.isClient) {
     //
     // Pairs
     //
-    var Paginator = (function() {
-        // pretty jenky first attempt at pagination
-        // -  things flicker when you click next
-        // -  not sure how to check if there are no pairs in the template
-        // -  stores state in js
-        var self = {
-            lastCreatedStack: [],
-            addNewest: function() {
-                var lastCreated = $('#pairs').find('.pair').last().data('created');
-                if (!lastCreated) {
-                    self.lastCreatedStack = [];
-                } else {
-                    self.lastCreatedStack.push(Session.get('lastCreated'));
-                }
-                Session.set('lastCreated', lastCreated);
-                self._updateState();
-                window.scrollTo(0, 0);
-            },
-            popNewest: function() {
-                var lastCreated = self.lastCreatedStack.pop() || null;
-                Session.set('lastCreated', lastCreated);
-                self._updateState();
-                window.scrollTo(0, 0);
-            },
-            _updateState: function() {
-                setIfNotEqual('hasPrev', self.lastCreatedStack.length != 0);
-                setIfNotEqual('hasNext',
-                              (self.lastCreatedStack.length == 0 ||
-                               $('#pairs').find('.pair').size() != 0));
-            }
-        };
-        self._updateState();
-        return self;
-    })();
-
-    Template.pairs.hasPrev = function() { return Session.get('hasPrev'); };
-    Template.pairs.hasNext = function() { return Session.get('hasNext'); };
 
     Template.pairs.pairs = function() {
-        var query = {},
-            lastCreated = Session.get('lastCreated');
-        if (lastCreated) {
-            query.created = {'$lt': lastCreated};
-        }
-        var pairs = Pairs.find(query, {sort: {"created": -1}}).fetch();
+        var query = {};
+
+        var pairs = Pairs.find(
+            query,
+            {sort: {"created": -1}, limit: pairsLimit}
+        ).fetch();
+
         renderLog('[PAIRS]', pairs.length);
+        Paginator.updateHasNext(pairs.length == pairsLimit);
         return pairs.map(function(pair) {
             pair.thumb = thumbnailer(pair.image);
             return pair;
         });
     };
-
-    Template.pairs.events({
-        'click .next': Paginator.addNewest,
-        'click .prev': Paginator.popNewest
-    });
 
     Template.pairs.rendered = function() {
         var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
@@ -330,6 +289,62 @@ if (Meteor.isClient) {
             background: bgFn
         });
     };
+
+    //
+    // Pagination
+    //
+
+    var Paginator = (function() {
+        Session.set('hasPrev', false);
+        Session.set('hasNext', true);
+        var page = 1;
+
+        var self = {
+            next: function(e) {
+                e.preventDefault();
+                page += 1;
+                self._update();
+            },
+            prev: function(e) {
+                e.preventDefault();
+                if (page > 1) {
+                    page -= 1;
+                }
+                self._update();
+            },
+            updateHasNext: function(hasNext) {
+                var sHasNext = Session.equals('hasNext', true);
+                hasNext = Boolean(hasNext);
+                if (hasNext !== sHasNext) {
+                    Session.set('hasNext', hasNext);
+                }
+            },
+            _update: function() {
+                Session.set('page', page);
+                var hasNext = Session.equals('hasNext', true);
+                var hasPrev = Session.equals('hasPrev', true);
+                if (page > 1 && !hasPrev) {
+                    Session.set('hasPrev', true);
+                } else if (page == 1 && hasPrev) {
+                    Session.set('hasPrev', false);
+                }
+            }
+        };
+
+        self._update();
+
+        return self;
+
+    })();
+
+    Template.pagination.hasPrev = function() { return Session.get('hasPrev'); };
+    Template.pagination.hasNext = function() { return Session.get('hasNext'); };
+
+    Template.pagination.events({
+        'click .next': Paginator.next,
+        'click .prev': Paginator.prev
+    });
+
 
     //
     // Shares Base
@@ -728,24 +743,33 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-    Meteor.publish('pairs', function(pairId, lastCreated, sortType, viewUserId, limit) {
-        if (pairId) {
+    Meteor.publish('pairs', function(sortType, page, pairsLimit, curPairId, viewUserId) {
+        if (curPairId) {
             return null;
         }
 
         var query = {},
-            sort = {'created': -1};
+            sort = {'created': -1},
+            options = {limit: pairsLimit};
 
-        if (sortType == 'user') {
+        if (page > 1) {
+            options.skip = (page-1)*pairsLimit;
+        }
+
+        if (viewUserId) {
             query.userId = viewUserId;
-        } else if (sortType == 'top') {
-            sortType = {'votes': 1};
         }
 
-        if (lastCreated) {
-            query.created = {'$lt': lastCreated};
-        }
-        return Pairs.find(query, {sort: sort, limit: limit});
+        // TODO - sorting
+        // if (sortType == 'user') {
+        //     query.userId = viewUserId;
+        // } else if (sortType == 'top') {
+        //     sort = {'votes': 1};
+        // }
+
+        options.sort = sort;
+
+        return Pairs.find(query, options);
     });
 
     Meteor.publish('pair', function(pairId) {
