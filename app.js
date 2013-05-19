@@ -155,8 +155,10 @@ if (Meteor.isClient) {
     };
 
     _.each(['newest', 'top', 'user'], function(x) {
+        var className = 'type-' + x;
         Template.options[x] = function() {
-            return Session.get('sortType') == x ? 'strong' : '';
+            return className + ' ' +
+                (Session.get('sortType') == x ? 'strong' : '');
         };
     });
 
@@ -690,6 +692,7 @@ if (Meteor.isClient) {
                 if (customRoute || !id) { id = null; }
                 if (customRoute) { customRoute(); }
                 Session.set('currentPairId', id);
+                Session.set('viewUserId', null);
             },
             user: function(id) {
                 Session.set('currentPairId', null);
