@@ -227,7 +227,6 @@ if (Meteor.isClient) {
                     Session.set('formErrorMessage', 'There was an error saving this :\'(');
                     $form.removeClass('loading');
                 } else {
-                    recents.add(_id);
                     $form.find('input').val('');
                     Session.set('formErrorMessage', null);
                     Session.set('formNoImage', false);
