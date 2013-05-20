@@ -72,7 +72,7 @@
     <div id="pairs">
         {{#each pairs}}
         <a href="/{{_id}}" class="pair" data-created="{{created}}">
-            <img src="{{getThumb image}}" {{#if getThumb image}}class="thumb" data-fullsrc="{{image}}"{{/if}}>
+            <img src="{{#if getThumb image}}{{getThumb image}}{{else}}{{image}}{{/if}}" {{#if getThumb image}}class="thumb" data-fullsrc="{{image}}"{{/if}}>
         </a>
         {{/each}}
     </div>
