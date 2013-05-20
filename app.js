@@ -259,18 +259,14 @@ if (Meteor.isClient) {
 
     Template.pairs.pairs = function() {
         var query = {};
-
-        var pairs = Pairs.find(
+        return Pairs.find(
             query,
             {sort: {"created": -1}, limit: pairsLimit}
-        ).fetch();
+        );
+    };
 
-        renderLog('[PAIRS]', pairs.length);
-        Paginator.updateHasNext(pairs.length == pairsLimit);
-        return pairs.map(function(pair) {
-            pair.thumb = thumbnailer(pair.image);
-            return pair;
-        });
+    Template.pairs.getThumb = function(image) {
+        return thumbnailer(image);
     };
 
     Template.pairs.rendered = function() {
@@ -294,9 +290,7 @@ if (Meteor.isClient) {
 
     var Paginator = (function() {
         Session.set('hasPrev', false);
-        Session.set('hasNext', true);
         var page = 1;
-
         var self = {
             next: function(e) {
                 e.preventDefault();
@@ -310,16 +304,8 @@ if (Meteor.isClient) {
                 }
                 self._update();
             },
-            updateHasNext: function(hasNext) {
-                var sHasNext = Session.equals('hasNext', true);
-                hasNext = Boolean(hasNext);
-                if (hasNext !== sHasNext) {
-                    Session.set('hasNext', hasNext);
-                }
-            },
             _update: function() {
                 Session.set('page', page);
-                var hasNext = Session.equals('hasNext', true);
                 var hasPrev = Session.equals('hasPrev', true);
                 if (page > 1 && !hasPrev) {
                     Session.set('hasPrev', true);
@@ -328,15 +314,16 @@ if (Meteor.isClient) {
                 }
             }
         };
-
         self._update();
-
         return self;
-
     })();
 
-    Template.pagination.hasPrev = function() { return Session.get('hasPrev'); };
-    Template.pagination.hasNext = function() { return Session.get('hasNext'); };
+    Template.pagination.hasPrev = function() {
+        return Session.get('hasPrev');
+    };
+    Template.pagination.hasNext = function() {
+        return Pairs.find({}).count() >= pairsLimit;
+    };
 
     Template.pagination.events({
         'click .next': Paginator.next,
