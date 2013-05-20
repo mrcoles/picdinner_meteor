@@ -25,6 +25,10 @@
             {{> addPair}}
         </div>
 
+        <div id="embed-pair" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Embed this picdin" aria-hidden="true">
+            {{> embedPair}}
+        </div>
+
         {{> viewPair}}
         {{#constant}}<iframe id="widget" width="100%" height="166" scrolling="no" frameborder="no" src="http://w.soundcloud.com/player/?url=http://api.soundcloud.com/users/1539950/favorites"></iframe>{{/constant}}
 
@@ -141,6 +145,28 @@
     </form>
 </template>
 
+<!-- addPair template -->
+<template name="embedPair">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id="myModalLabel">Embed this picdin!</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            Height:
+            <label><input type="radio" name="height" value="800"> 800</label>
+            <label><input type="radio" name="height" value="600"> 600</label>
+            <label><input type="radio" name="height" value="400" selected="selected"> 400</label>
+        </p>
+        <textarea>{{embedCode}}</textarea>
+    </div>
+    <div class="modal-footer">
+        <div class="clearfix">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+    </div>
+</template>
+
 <!-- viewPair template -->
 <template name="viewPair">
     <div id="view-pair"{{#unless currentPairId}} class="hide" aria-hidden="true"{{/unless}}>{{#if pair}}
@@ -148,6 +174,7 @@
         <img id="view-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
         {{/constant}}
         <div id="pair-info" class="shares">
+            {{#if showEmbed}}<a class="embed" href="#" onclick="return false">Embed this picdin</a>{{/if}}
             {{#if currentUser}}
             <a class="vote up{{#if hasUpvoted pair}} active{{/if}}" href="#" onclick="return false">Upvote</a>
             <a class="vote down{{#if hasDownvoted pair}} active{{/if}}" href="#" onclick="return false">Downvote</a>

@@ -72,6 +72,14 @@ if (Meteor.isClient) {
                 sortTypeRoutes._)();
     }
 
+    function isEmbed() {
+        return ('|'+window.location.href.split('#')[1]+'|')
+            .indexOf('|embed|') != -1;
+    }
+    function isAutoplay() {
+        return AUTOPLAY ? !isEmbed() : false;
+    }
+
     function log() {
         try {
             console.log.apply(console, arguments);
@@ -412,7 +420,7 @@ if (Meteor.isClient) {
                     this.clear();
                     this.pairId = pairId;
 
-                    if (!AUTOPLAY) {
+                    if (!isAutoplay()) {
                         Session.set('showMobilePlay', !isSoundCloud);
                     }
 
@@ -467,7 +475,7 @@ if (Meteor.isClient) {
         playSimple: function(audio) {
             var au = $.extend(new Audio(), {
                 //loop: true, - manage loop in `ended`
-                autoplay: AUTOPLAY
+                autoplay: isAutoplay()
             });
 
             $('html').addClass('show-arrows');
@@ -479,9 +487,7 @@ if (Meteor.isClient) {
                 log('[AU.PLAYING]', e);
             }).on('ended', function(e) {
                 log('[AU.ENDED]', e);
-                if (!tryNext()) {
-                    au.play();
-                }
+                tryNext();
             });
 
             // cross browser support ogg vs mp3
@@ -503,7 +509,7 @@ if (Meteor.isClient) {
                     log('[SC.CALLBACK]');
                     viewer.fadeInWidget();
 
-                    if (!AUTOPLAY) {
+                    if (!isAutoplay()) {
                         $('body').addClass('paused-sc');
                         $viewImage.fadeIn();
                         return;
@@ -601,6 +607,10 @@ if (Meteor.isClient) {
         return voteState(pair, false);
     };
 
+    Template.viewPair.showEmbed = function() {
+        return isAutoplay();
+    };
+
     Template.viewPair.prevPair = function() {
         var curCreated = Session.get('currentCreated');
         var curScore = Session.get('currentScore');
@@ -628,7 +638,7 @@ if (Meteor.isClient) {
     Template.viewPair.backUrl = getBackUrl;
 
     Template.viewPair.mobileClick = function() {
-        return !AUTOPLAY && Session.get('currentPairId') &&
+        return !isAutoplay() && Session.get('currentPairId') &&
             Session.get('showMobilePlay');
     };
 
@@ -659,6 +669,30 @@ if (Meteor.isClient) {
                           (isActive ? 'cancelDownvotePair' : 'downvotePair'));
 
             Meteor.call(method, Session.get('currentPairId'));
+        },
+        'click .embed': function(e) {
+            e.preventDefault();
+            $('#embed-pair').modal().find('input[selected]').click();
+        }
+    });
+
+    Template.embedPair.embedCode = function() {
+        var height = parseInt(Session.get('embedHeight')) || 400,
+            url = window.location.href.split('#')[0],
+            embedUrl = url + '#embed',
+            _ = Handlebars._escape;
+        return ('<iframe width="100%" height="' + height +
+                '" src="' + _(embedUrl) + '"></iframe>' +
+                '<p>An audio/video <a href="' + _(url) + '" ' +
+                'target="_blank">pairing</a> ' +
+                'courtesy of <a href="http://picdinner.com">PicDinner</a>.</p>');
+    };
+
+    Template.embedPair.events({
+        'click input[type=radio]': function(e) {
+            var $this = $(e.target).closest('input'),
+                height = $this.val();
+            Session.set('embedHeight', parseInt(height));
         }
     });
 
@@ -756,6 +790,7 @@ if (Meteor.isClient) {
             'user/:id': 'user'
         }, {
             main: function(id) {
+                if (id) id = id.split('#')[0];
                 var customRoute = customRoutes[id];
                 if (!id) { Session.set('sortType', 'top'); }
                 if (customRoute || !id) { id = null; }
@@ -764,6 +799,7 @@ if (Meteor.isClient) {
                 Session.set('viewUserId', null);
             },
             user: function(id) {
+                if (id) id = id.split('#')[0];
                 Session.set('currentPairId', null);
                 Session.set('sortType', 'user');
                 Session.set('viewUserId', id);
@@ -774,17 +810,20 @@ if (Meteor.isClient) {
     function tryNext() {
         tryArrow();
     }
+    window._tryNext = tryNext;
 
     function hasArrow(prev) {
         return $(prev ? '#prev-pair' : '#next-pair').size();
     }
 
     function tryArrow(prev) {
-        var $next = $(prev ? '#prev-pair' : '#next-pair');
-        log('[TRY-NEXT]', prev, '$next', $next.attr('href'));
+        var $next = $(prev ? '#prev-pair' : '#next-pair'),
+            hash = window.location.href.split('#')[1],
+            url = $next.attr('href') + (hash ? '#'+hash : '');
+        log('[TRY-NEXT]', prev, '$next', url);
         if ($next.size()) {
             scWidget.pause();
-            Backbone.history.navigate($next.attr('href'), true);
+            Backbone.history.navigate(url, true);
             return true;
         }
         return false;

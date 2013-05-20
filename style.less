@@ -318,6 +318,7 @@ a.pair {
 
 }
 
+.embed,
 .vote {
     float: right;
     clear: right;
@@ -340,6 +341,32 @@ a.pair {
         &.active {
             background-position: -20px -20px;
         }
+    }
+}
+
+.embed {
+    float: left;
+    clear: none;
+    width: 30px;
+    margin-right: 0;
+    background-position: -40px 0;
+}
+
+#embed-pair {
+    @line-height: 20px;
+    line-height: @line-height;
+    textarea {
+        width: 100%;
+        .box-sizing;
+        height: @line-height*5px;
+    }
+    label {
+        display: inline-block;
+        margin-left: 5px;
+    }
+    input {
+        vertical-align: middle;
+        margin: 0 2px 3px 0;
     }
 }
 
