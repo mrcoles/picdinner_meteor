@@ -172,13 +172,20 @@ if (Meteor.isClient) {
         return Session.get('sortType');
     };
 
+    var optionsEvents = {};
+
     _.each(['newest', 'top', 'user'], function(x) {
         var className = 'type-' + x;
         Template.options[x] = function() {
             return className + ' ' +
                 (Session.get('sortType') == x ? 'strong' : '');
         };
+        optionsEvents['click .' + className] = function() {
+            Paginator.reset();
+        };
     });
+
+    Template.options.events(optionsEvents);
 
     //
     // Add Pair
@@ -326,6 +333,10 @@ if (Meteor.isClient) {
                 }
                 self._update();
             },
+            reset: function() {
+                page = 1;
+                self._update();
+            },
             _update: function() {
                 Session.set('page', page);
                 var hasPrev = Session.equals('hasPrev', true);
@@ -350,6 +361,16 @@ if (Meteor.isClient) {
     Template.pagination.events({
         'click .next': Paginator.next,
         'click .prev': Paginator.prev
+    });
+
+    //
+    // Head
+    //
+
+    Template.head.events({
+        'click h1>a': function() {
+            Paginator.reset();
+        }
     });
 
 
