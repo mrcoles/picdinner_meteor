@@ -56,13 +56,11 @@
 <!-- head template -->
 <template name="options">
     <div class="options clearfix">
-        {{#if currentUser}}
         <ul class="left unstyled">
-            <li><a href="/" class="{{newest}}">newest</a></li>
-            {{#comment}}<!--<li><a href="/top" class="{{top}}">top</a></li>-->{{/comment}}
+            <li><a href="/" class="{{top}}">top</a></li>
+            <li><a href="/newest" class="{{newest}}">newest</a></li>
             {{#if currentUser}}<li><a href="/user/{{currentUser._id}}" class="{{user}}">you</a></li>{{/if}}
         </ul>
-        {{/if}}
         <div class="right">
             {{loginButtons}}
         </div>

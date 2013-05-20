@@ -33,12 +33,33 @@ Pairs.allow({
     }
 });
 
-function lookupNext(currentCreated, prev, asFind) {
-    if (!currentCreated) return null;
-    return Pairs[asFind ? 'find' : 'findOne']({
-        created: prev ? {'$gt': currentCreated} : {'$lt': currentCreated}
-    }, {
-        sort: {'created': prev ? 1 : -1},
+
+var sortTypeSorts = {
+    _: {'created': -1}, // catch-all
+    top: {'score': -1}
+};
+
+function lookupNext(curCreated, curScore, sortType, viewUserId, prev, asFind) {
+    if (!curCreated) return null;
+    curScore = curScore || 0;
+
+    var query = {};
+    if (sortType == 'top') {
+        query.score = prev ? {'$gt': curScore} : {'$lt': curScore};
+    } else {
+        query.created = prev ? {'$gt': curCreated} : {'$lt': curCreated};
+    }
+    if (viewUserId) {
+        query.userId = viewUserId;
+    }
+
+    var sort = {};
+    _.each(sortTypeSorts[sortType] || sortTypeSorts._, function(v, k) {
+        sort[k] = prev ? -1*v : v;
+    });
+
+    return Pairs[asFind ? 'find' : 'findOne'](query, {
+        sort: sort,
         limit: 1
     });
 }
@@ -48,7 +69,7 @@ if (Meteor.isClient) {
 
     function getBackUrl() {
         return (sortTypeRoutes[Session.get('sortType')] ||
-                sortTypeRoutes.newest)();
+                sortTypeRoutes._)();
     }
 
     function log() {
@@ -133,14 +154,15 @@ if (Meteor.isClient) {
     Deps.autorun(function() {
         var curPairId = Session.get('currentPairId'),
             curCreated = Session.get('currentCreated'),
+            curScore = Session.get('currentScore'),
             sortType = Session.get('sortType'),
             viewUserId = Session.get('viewUserId'),
             page = Session.get('page');
         renderLog('[SUBSCRIBE.PAIRS]', sortType, viewUserId, curPairId, curCreated);
         Meteor.subscribe('pairs', sortType, page, pairsLimit, curPairId, viewUserId);
         Meteor.subscribe('pair', curPairId);
-        Meteor.subscribe('prevPair', curCreated, sortType, viewUserId);
-        Meteor.subscribe('nextPair', curCreated, sortType, viewUserId);
+        Meteor.subscribe('prevPair', curCreated, curScore, sortType, viewUserId);
+        Meteor.subscribe('nextPair', curCreated, curScore, sortType, viewUserId);
     });
 
     //
@@ -258,10 +280,10 @@ if (Meteor.isClient) {
     //
 
     Template.pairs.pairs = function() {
-        var query = {};
         return Pairs.find(
-            query,
-            {sort: {"created": -1}, limit: pairsLimit}
+            {},
+            {sort: sortTypeSorts[Session.get('sortType')] || sortTypeSorts._,
+             limit: pairsLimit}
         );
     };
 
@@ -542,6 +564,7 @@ if (Meteor.isClient) {
     Template.viewPair.pair = function() {
         var p = Pairs.findOne({'_id': Session.get('currentPairId')});
         Session.set('currentCreated', p ? p.created : null);
+        Session.set('currentScore', p ? p.score : null);
         return p;
     };
 
@@ -558,13 +581,19 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.prevPair = function() {
-        var currentCreated = Session.get('currentCreated');
-        return lookupNext(currentCreated, true);
+        var curCreated = Session.get('currentCreated');
+        var curScore = Session.get('currentScore');
+        var sortType = Session.get('sortType');
+        var viewUserId = Session.get('viewUserId');
+        return lookupNext(curCreated, curScore, sortType, viewUserId, true);
     };
 
     Template.viewPair.nextPair = function() {
-        var currentCreated = Session.get('currentCreated');
-        return lookupNext(currentCreated, false);
+        var curCreated = Session.get('currentCreated');
+        var curScore = Session.get('currentScore');
+        var sortType = Session.get('sortType');
+        var viewUserId = Session.get('viewUserId');
+        return lookupNext(curCreated, curScore, sortType, viewUserId, false);
     };
 
     Template.viewPair.isSoundCloud = function(audio) {
@@ -681,8 +710,8 @@ if (Meteor.isClient) {
     // URL Routing
     //
     var sortTypeRoutes = {
-        newest: function() { return '/'; },
-        top: function() { return '/top'; },
+        _: function() { return '/'; }, // catch-all
+        newest: function() { return '/newest'; },
         user: function() {
             var userId = Meteor.userId();
             return userId ? '/user/' + userId : sortTypeRoutes.newest();
@@ -695,8 +724,8 @@ if (Meteor.isClient) {
             add: function() {
                 $('#add-pair').modal();
             },
-            top: function() {
-                Session.set('sortType', 'top');
+            newest: function() {
+                Session.set('sortType', 'newest');
             }
         };
 
@@ -707,7 +736,7 @@ if (Meteor.isClient) {
         }, {
             main: function(id) {
                 var customRoute = customRoutes[id];
-                if (!id) { Session.set('sortType', 'newest'); }
+                if (!id) { Session.set('sortType', 'top'); }
                 if (customRoute || !id) { id = null; }
                 if (customRoute) { customRoute(); }
                 Session.set('currentPairId', id);
@@ -771,14 +800,15 @@ if (Meteor.isServer) {
         }
 
         var query = {},
-            sort = {'created': -1},
+            sort = sortTypeSorts[sortType] || sortTypeSorts._,
             options = {
                 limit: pairsLimit,
                 fields: {
                     _id: 1,
                     audio: 1,
                     image: 1,
-                    created: 1
+                    created: 1,
+                    score: 1
                 }
             };
 
@@ -790,13 +820,6 @@ if (Meteor.isServer) {
             query.userId = viewUserId;
         }
 
-        // TODO - sorting
-        // if (sortType == 'user') {
-        //     query.userId = viewUserId;
-        // } else if (sortType == 'top') {
-        //     sort = {'votes': 1};
-        // }
-
         options.sort = sort;
 
         return Pairs.find(query, options);
@@ -806,12 +829,12 @@ if (Meteor.isServer) {
         return Pairs.find({_id: pairId});
     });
 
-    Meteor.publish('prevPair', function(currentCreated) {
-        return lookupNext(currentCreated, true, true);
+    Meteor.publish('prevPair', function(curCreated, curScore, sortType, viewUserId) {
+        return lookupNext(curCreated, curScore, sortType, viewUserId, true, true);
     });
 
-    Meteor.publish('nextPair', function(currentCreated) {
-        return lookupNext(currentCreated, false, true);
+    Meteor.publish('nextPair', function(curCreated, curScore, sortType, viewUserId) {
+        return lookupNext(curCreated, curScore, sortType, viewUserId, false, true);
     });
 }
 
