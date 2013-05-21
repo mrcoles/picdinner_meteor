@@ -1,11 +1,10 @@
 
 // TODO
 //
-// *   sort by "top" + voting
+// *   proper time-decay sorting
 // *   remixing of an existing picdinner
 // *   simple gif search - maybe just scrape http://www.reddit.com/r/woahdude.json & http://www.reddit.com/r/gifs.json?
 // *   simple soundcloud search
-// *   embed script to put on other pages
 //
 
 Pairs = new Meteor.Collection('pairs');
