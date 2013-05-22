@@ -264,6 +264,8 @@ if (Meteor.isClient) {
                     Session.set('formErrorMessage', null);
                     Session.set('formNoImage', false);
                     Session.set('currentPairId', _id);
+                    Session.set('sortType', 'newest');
+                    Paginator.reset();
 
                     Backbone.history.navigate('/'+_id);
 
