@@ -682,6 +682,7 @@ if (Meteor.isClient) {
             url = window.location.href.split('#')[0],
             embedUrl = url + '#embed',
             _ = Handlebars._escape;
+        Session.get('currentPairId'); // force reactivity on pair change
         return ('<iframe width="100%" height="' + height +
                 '" src="' + _(embedUrl) + '"></iframe>' +
                 '<p>An audio/video <a href="' + _(url) + '" ' +
