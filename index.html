@@ -57,11 +57,11 @@
             <a href="/">picDinner{{#if pageUserId}}:{{/if}}</a>
         </h1>
         <a id="add" href="/add" onclick="return false"><span>+</span> <em>add</em></a>
-        {{#if pageUserId}}{{#unless logginIn}}
+        {{#if pageUserId}}{{#unless loggingIn}}
         <h1>
             <a href="/user/{{pageUserId}}">{{getUsername pageUserId}}</a>
         </h1>
-        {{/unless}}{/if}}
+        {{/unless}}{{/if}}
     </div>
 </template>
 
