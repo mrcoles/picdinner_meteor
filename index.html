@@ -53,8 +53,15 @@
 <!-- head template -->
 <template name="head">
     <div id="head" class="container">
-        <h1><a href="/">picDinner!</a></h1>
+        <h1>
+            <a href="/">picDinner{{#if pageUserId}}:{{/if}}</a>
+        </h1>
         <a id="add" href="/add" onclick="return false"><span>+</span> <em>add</em></a>
+        {{#if pageUserId}}
+        <h1>
+            <a href="/user/{{pageUserId}}">{{getUsername pageUserId}}</a>
+        </h1>
+        {{/if}}
     </div>
 </template>
 

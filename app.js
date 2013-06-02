@@ -441,6 +441,10 @@ if (Meteor.isClient) {
     // Head
     //
 
+    Template.head.pageUserId = function() {
+        return Session.get('viewUserId');
+    };
+
     Template.head.events({
         'click h1>a': function() {
             Paginator.reset();
