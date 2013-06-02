@@ -32,6 +32,41 @@ Pairs.allow({
     }
 });
 
+function isValidUsername(username) {
+    return /^[A-Za-z\u00C0-\u017F0-9_-]+$/.test(username);
+}
+
+Meteor.users.allow({
+    insert: function(userId, doc) {
+        return false;
+    },
+    update: function(userId, doc, fields, modifier) {
+        var validUpdates = {
+            username: function() {
+                if (!modifier || !modifier.$set || !modifier.$set.username) {
+                    return false;
+                }
+                var username = modifier.$set.username;
+                if (!isValidUsername(username)) {
+                    return false;
+                }
+                return true;
+            }
+        };
+
+        for (var i=0, len=fields.length; i<len; i++) {
+            if (!validUpdates[fields[i]] || !validUpdates[fields[i]]()) {
+                return false;
+            }
+        }
+
+        return userId === doc._id;
+    },
+    remove: function(userId, doc) {
+        return userId && userId === doc._id;
+    }
+});
+
 
 var sortTypeSorts = {
     _: {'created': -1}, // catch-all
@@ -303,10 +338,6 @@ if (Meteor.isClient) {
         );
     };
 
-    Template.pairs.getThumb = function(image) {
-        return thumbnailer(image);
-    };
-
     Template.pairs.rendered = function() {
         var colors = 'fdd dfd ddf ffd fdf dff'.split(' '),
             $pairs = $('#pairs'),
@@ -379,6 +410,46 @@ if (Meteor.isClient) {
     Template.head.events({
         'click h1>a': function() {
             Paginator.reset();
+        }
+    });
+
+    //
+    // Add username
+    //
+    Template.addUsername.errorMessage = function() {
+        return Session.get('addUsernameError');
+    };
+
+    Template.addUsername.events({
+        'submit form': function(e) {
+            e.preventDefault();
+            Session.set('addUsernameError', null);
+            var $input = $('#id_username'),
+                username = $.trim($input.val()),
+                user = Meteor.user();
+            Meteor.users.update({_id: user._id}, {
+                $set: {username: username}
+            }, function(error) {
+                if (error) {
+                    switch (error.error) {
+                      case 409:
+                        // duplicate key
+                        Session.set('addUsernameError',
+                                    'The username "' + username +
+                                    '" already exists :\'(');
+                        break;
+                      case 403:
+                        // access denied
+                        Session.set('addUsernameError',
+                                    'Please use only letters, numbers, ' +
+                                    'dashes, and underscores.');
+                        break;
+                    default:
+                        Session.set('addUsernameError', error.message);
+                        break;
+                    }
+                }
+            });
         }
     });
 

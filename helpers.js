@@ -9,4 +9,8 @@ if (Meteor.isClient) {
             return Session.get(key);
         });
     });
+
+    Handlebars.registerHelper('getThumb', function(image) {
+        return thumbnailer(image);
+    });
 }

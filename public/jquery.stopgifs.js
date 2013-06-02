@@ -120,12 +120,16 @@
                 $fullImg;
 
             function hoverOn() {
-                $img.hide();
-                $fullImg.show();
+                if ($fullImg) {
+                    $img.hide();
+                    $fullImg.show();
+                }
             }
             function hoverOut() {
-                $fullImg.hide();
-                $img.show();
+                if ($fullImg) {
+                    $fullImg.hide();
+                    $img.show();
+                }
             }
 
             function init() {
