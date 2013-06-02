@@ -95,11 +95,9 @@
 </template>
 
 <template name="pair">
-        <a href="/{{_id}}" class="pair" data-created="{{created}}">
-            {{#constant}}
-            <img src="{{#if getThumb image}}{{getThumb image}}{{else}}{{image}}{{/if}}" {{#if getThumb image}}class="thumb" data-fullsrc="{{image}}"{{/if}}>
-            {{/constant}}
-        </a>
+    <a href="/{{_id}}" class="pair" data-created="{{created}}">
+        <img src="{{#if getThumb image}}{{getThumb image}}{{else}}{{image}}{{/if}}" {{#if getThumb image}}class="thumb" data-fullsrc="{{image}}"{{/if}}>
+    </a>
 </template>
 
 <template name="pagination">

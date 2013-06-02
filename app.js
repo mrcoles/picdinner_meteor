@@ -192,19 +192,36 @@ if (Meteor.isClient) {
     });
     var pairsLimit = isMobile ? 12 : 24;
 
+
     // auto update pair subscription when it changes
+
     Deps.autorun(function() {
         var curPairId = Session.get('currentPairId'),
-            curCreated = Session.get('currentCreated'),
+            viewUserId = Session.get('viewUserId'),
+            sortType = Session.get('sortType'),
+            page = Session.get('page');
+        Meteor.subscribe('pairs', sortType, page, pairsLimit,
+                         curPairId, viewUserId);
+    });
+
+    Deps.autorun(function() {
+        var curPairId = Session.get('currentPairId');
+        Meteor.subscribe('pair', curPairId);
+    });
+
+    Deps.autorun(function() {
+        var curCreated = Session.get('currentCreated'),
             curScore = Session.get('currentScore'),
             sortType = Session.get('sortType'),
-            viewUserId = Session.get('viewUserId'),
-            page = Session.get('page');
-        renderLog('[SUBSCRIBE.PAIRS]', sortType, viewUserId, curPairId, curCreated);
-        Meteor.subscribe('pairs', sortType, page, pairsLimit, curPairId, viewUserId);
-        Meteor.subscribe('pair', curPairId);
-        Meteor.subscribe('prevPair', curCreated, curScore, sortType, viewUserId);
-        Meteor.subscribe('nextPair', curCreated, curScore, sortType, viewUserId);
+            viewUserId = Session.get('viewUserId');
+        Meteor.subscribe('prevPair', curCreated, curScore,
+                         sortType, viewUserId);
+        Meteor.subscribe('nextPair', curCreated, curScore,
+                         sortType, viewUserId);
+    });
+
+    Deps.autorun(function() {
+        Meteor.subscribe('allUsers');
     });
 
     //
@@ -968,6 +985,10 @@ if (Meteor.isServer) {
 
     Meteor.publish('nextPair', function(curCreated, curScore, sortType, viewUserId) {
         return lookupNext(curCreated, curScore, sortType, viewUserId, false, true);
+    });
+
+    Meteor.publish('allUsers', function() {
+        return Meteor.users.find({}, {fields: {_id: 1, username: 1}});
     });
 }
 
