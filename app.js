@@ -119,8 +119,9 @@ function lookupNext(curCreated, curScore, sortType, viewUserId, prev, asFind) {
 if (Meteor.isClient) {
 
     function getBackUrl() {
+        var viewUserId = Session.get('viewUserId');
         return (sortTypeRoutes[Session.get('sortType')] ||
-                sortTypeRoutes._)();
+                sortTypeRoutes._)(viewUserId);
     }
 
     function isEmbed() {
@@ -880,9 +881,8 @@ if (Meteor.isClient) {
     var sortTypeRoutes = {
         _: function() { return '/'; }, // catch-all
         newest: function() { return '/newest'; },
-        user: function() {
-            var userId = Meteor.userId();
-            return userId ? '/user/' + userId : sortTypeRoutes.newest();
+        user: function(viewUserId) {
+            return viewUserId ? '/user/' + viewUserId : sortTypeRoutes.newest();
         }
     };
 
@@ -906,13 +906,19 @@ if (Meteor.isClient) {
                 if (id) id = id.split('#')[0];
                 var customRoute = customRoutes[id];
                 if (!id) { Session.set('sortType', 'top'); }
-                if (customRoute || !id) { id = null; }
+                if (customRoute || !id) {
+                    id = null;
+                    // only clear viewUserId when we're not viewing
+                    // a pair directly
+                    Session.set('viewUserId', null);
+                }
                 if (customRoute) { customRoute(); }
+                viewer.active = !!id;
                 Session.set('currentPairId', id);
-                Session.set('viewUserId', null);
             },
             user: function(id) {
                 if (id) id = id.split('#')[0];
+                viewer.active = false;
                 Session.set('currentPairId', null);
                 Session.set('sortType', 'user');
                 Session.set('viewUserId', id);
