@@ -13,4 +13,9 @@ if (Meteor.isClient) {
     Handlebars.registerHelper('getThumb', function(image) {
         return thumbnailer(image);
     });
+
+    Handlebars.registerHelper('getUsername', function(userId) {
+        var user = Meteor.users.findOne(userId);
+        return user && user.username ? user.username : 'anonymous';
+    });
 }

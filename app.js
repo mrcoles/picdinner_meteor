@@ -32,8 +32,25 @@ Pairs.allow({
     }
 });
 
+var _invalidUsernames = {};
+_.forEach(
+    ('login logout signin signout ' +
+     'user users username profile people ' +
+     'about contact all info browse search ' +
+     'tag tags category categories ' +
+     'top recent best ' +
+     'hot new rising controversial saved ' +
+     'preferences blog wiki ' +
+     'b u s q p ' +
+     'picdinner picdin admin administrator official ' +
+     'you anon anonymous unnamed mrcoles petercoles meteor ' +
+     'password changepassword').split(' '),
+    function(x) { _invalidUsernames[x] = 1; }
+);
+
 function isValidUsername(username) {
-    return /^[A-Za-z\u00C0-\u017F0-9_-]+$/.test(username);
+    return /^[A-Za-z\u00C0-\u017F0-9_-]+$/.test(username) &&
+        !_invalidUsernames[username.toLowerCase().replace(/[^a-z]+/, '')];
 }
 
 Meteor.users.allow({
@@ -458,7 +475,9 @@ if (Meteor.isClient) {
                       case 403:
                         // access denied
                         Session.set('addUsernameError',
-                                    'Please use only letters, numbers, ' +
+                                    'Invalid username. ' +
+                                    'Please try another one ' +
+                                    ' with only letters, numbers, ' +
                                     'dashes, and underscores.');
                         break;
                     default:
@@ -958,7 +977,8 @@ if (Meteor.isServer) {
                     audio: 1,
                     image: 1,
                     created: 1,
-                    score: 1
+                    score: 1,
+                    userId: 1
                 }
             };
 

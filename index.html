@@ -192,7 +192,13 @@
         <img id="view-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
         {{/constant}}
         <div id="pair-info" class="shares">
+            {{#if pair.userId}}<span class="author-cred">
+                via <a href="/user/{{pair.userId}}">{{getUsername pair.userId}}</a>
+            </span>
+            {{/if}}
+
             {{#if showEmbed}}<a class="embed" href="#" onclick="return false">Embed this picdin</a>{{/if}}
+
             {{#if currentUser}}
             <a class="vote up{{#if hasUpvoted pair}} active{{/if}}" href="#" onclick="return false">Upvote</a>
             <a class="vote down{{#if hasDownvoted pair}} active{{/if}}" href="#" onclick="return false">Downvote</a>
