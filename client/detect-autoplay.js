@@ -6,7 +6,7 @@
 // autoplay feature for HTML5 Audio elements, and it sets the
 // `AUTOPLAY` variable accordingly.
 
-var AUTOPLAY = false;
+AUTOPLAY = false;
 
 (function() {
 
