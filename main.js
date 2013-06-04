@@ -796,7 +796,7 @@ if (Meteor.isClient) {
             _ = Handlebars._escape;
         Session.get('currentPairId'); // force reactivity on pair change
         return ('<iframe width="100%" height="' + height +
-                '" src="' + _(embedUrl) + '"></iframe>' +
+                '" src="' + _(embedUrl) + '" frameborder="0"></iframe>' +
                 '<p>An audio/video <a href="' + _(url) + '" ' +
                 'target="_blank">pairing</a> ' +
                 'courtesy of <a href="http://picdinner.com">PicDinner</a>.</p>');
