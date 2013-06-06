@@ -720,11 +720,14 @@ if (Meteor.isClient) {
         return voteState(pair, false);
     };
 
+    Template.viewPair.isEmbed = isEmbed;
+
     Template.viewPair.showEmbed = function() {
         return isAutoplay();
     };
 
     Template.viewPair.prevPair = function() {
+        if (isEmbed()) return null;
         var curCreated = Session.get('currentCreated');
         var curScore = Session.get('currentScore');
         var sortType = Session.get('sortType');
@@ -733,6 +736,7 @@ if (Meteor.isClient) {
     };
 
     Template.viewPair.nextPair = function() {
+        if (isEmbed()) return null;
         var curCreated = Session.get('currentCreated');
         var curScore = Session.get('currentScore');
         var sortType = Session.get('sortType');

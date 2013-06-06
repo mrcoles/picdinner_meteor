@@ -198,7 +198,7 @@
         {{/constant}}
         <div id="pair-info" class="shares">
             {{#if pair.userId}}<span class="author-cred">
-                via <a href="/user/{{pair.userId}}">{{getUsername pair.userId}}</a>
+                via <a {{#if isEmbed}}target="_blank"{{/if}} href="/user/{{pair.userId}}">{{getUsername pair.userId}}</a>
             </span>
             {{/if}}
 
@@ -209,7 +209,7 @@
             <a class="vote down{{#if hasDownvoted pair}} active{{/if}}" href="#" onclick="return false">Downvote</a>
             {{/if}}
 
-            <a class="close" href="{{backUrl}}" title="picDinner home">&times;</a>
+            <a class="close" {{#if isEmbed}}target="_blank"{{/if}} href="{{backUrl}}" title="picDinner home">&times;</a>
         </div>
     {{/if}}</div>
     {{#isolate}}

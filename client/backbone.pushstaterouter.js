@@ -69,6 +69,11 @@
                         .slice(0,3)
                         .join('/') + '/';
 
+                    // let links with a target pass through...
+                    if ($this.attr('target')) {
+                        return;
+                    }
+
                     // Verify that we are still on the same domain and protocol
                     // and that it's not a hash link.
                     if (href.indexOf(baseUrl) == 0 && hrefAttr.indexOf('#') != 0) {
