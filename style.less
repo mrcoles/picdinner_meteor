@@ -3,7 +3,7 @@
 html,body,div,p,ul,ol,li,h1,h2,h3,h4,h5,a{margin:0;padding:0}
 
 @container-max: 960px;
-@container-min: 320px;
+@container-min: 240px;
 @container-pad: 20px;
 
 @font-color: #333;
@@ -139,6 +139,10 @@ body.in-viewer {
 }
 @media (max-width: @container-max) {
     #head { top: 0; margin-bottom: 20px; }
+}
+@media (max-width: 319px) {
+    #head h1,
+    #head a#add { font-size: 30px; }
 }
 
 .fader {
