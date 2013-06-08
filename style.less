@@ -259,9 +259,14 @@ a.pair {
     @pair-cols: 2;
     #pairs { .pairsWidth(@pair-cols, @pair-width, @pair-margin); }
     a.pair { .pairWidth(@pair-width, @pair-margin); }
+    a.pair {
+        height: @pair-dim*.75;
+        line-height: @pair-dim*.75 - 20;
+    }
+
 }
 
-@media (max-width: 320px) {
+@media (max-width: 280px) { // < 320 so iphone portrait is 2 cols
     @pair-width: 100%;
     @pair-margin: 0;
     @pair-cols: 1;
