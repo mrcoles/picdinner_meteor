@@ -400,6 +400,7 @@ if (Meteor.isClient) {
                 e.preventDefault();
                 page += 1;
                 self._update();
+                self._scrollTop();
             },
             prev: function(e) {
                 e.preventDefault();
@@ -407,6 +408,7 @@ if (Meteor.isClient) {
                     page -= 1;
                 }
                 self._update();
+                self._scrollTop();
             },
             reset: function() {
                 page = 1;
@@ -419,6 +421,14 @@ if (Meteor.isClient) {
                     Session.set('hasPrev', true);
                 } else if (page == 1 && hasPrev) {
                     Session.set('hasPrev', false);
+                }
+            },
+            _scrollTop: function() {
+                var $pairs = $('#pairs'),
+                    $window = $(window),
+                    top = $pairs.offset().top - 20;
+                if (top < $window.scrollTop()) {
+                    $('html,body').animate({scrollTop: top}, 1000);
                 }
             }
         };
