@@ -253,7 +253,7 @@ a.pair {
     a.pair { .pairWidth(@pair-width, @pair-margin); }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 479px) { // < 480 for so iphone landscape is 3 cols
     @pair-width: 48%;
     @pair-margin: 2%;
     @pair-cols: 2;
@@ -266,7 +266,7 @@ a.pair {
 
 }
 
-@media (max-width: 280px) { // < 320 so iphone portrait is 2 cols
+@media (max-width: 319px) { // < 320 so iphone portrait is 2 cols
     @pair-width: 100%;
     @pair-margin: 0;
     @pair-cols: 1;
