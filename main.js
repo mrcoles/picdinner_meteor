@@ -158,32 +158,34 @@ if (Meteor.isClient) {
         var self = seekWidget,
             playCounter = self.playCounter;
 
-        function playIt(volume) {
+        function setVolume(volume) {
             scWidget.setVolume(volume === undefined ? 100 : volume);
-            scWidget.play();
         }
 
         if (!seconds) {
-            playIt();
+            setVolume();
+            scWidget.play();
             return;
         }
 
         var time = Math.round(seconds * 1000);
-        playIt(0);
+        setVolume(0);
+        scWidget.play();
 
         scWidget.getDuration(function(duration) {
             if (time >= duration) {
-                playIt();
+                setVolume();
             }
 
             (function doSeek() {
                 scWidget.seekTo(time);
+
                 // this basically waits for the widget to load the sound, continually
                 // seeking to the furthest loaded point until the target is reached
                 scWidget.getPosition(function(position) {
                     if (self.playCounter == playCounter) {
                         if (position >= time) {
-                            playIt();
+                            setVolume();
                         } else {
                             seekWidget.timeout = Meteor.setTimeout(doSeek, 200);
                         }
