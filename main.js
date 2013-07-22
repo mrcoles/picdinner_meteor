@@ -1004,7 +1004,8 @@ if (Meteor.isServer) {
                     image: 1,
                     created: 1,
                     score: 1,
-                    userId: 1
+                    userId: 1,
+                    startTime: 1
                 }
             };
 
