@@ -179,6 +179,7 @@ if (Meteor.isClient) {
 
             (function doSeek() {
                 scWidget.seekTo(time);
+                setVolume(0); // in ff first setVolume(0) doesn't work, so try again
 
                 // this basically waits for the widget to load the sound, continually
                 // seeking to the furthest loaded point until the target is reached
