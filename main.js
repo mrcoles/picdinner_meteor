@@ -530,6 +530,7 @@ if (Meteor.isClient) {
         active: false,
         pairId: null,
         audio: null,
+        startTime: 0,
         update: function(pairId, pair) {
 
             if (pairId || pair) {
@@ -545,6 +546,7 @@ if (Meteor.isClient) {
                 if (!this.pairId || this.pairId != pairId) {
                     this.clear();
                     this.pairId = pairId;
+                    this.startTime = pair.startTime;
 
                     if (!isAutoplay()) {
                         Session.set('showMobilePlay', !isSoundCloud);
@@ -674,6 +676,7 @@ if (Meteor.isClient) {
 
             if (this.pairId) {
                 this.pairId = null;
+                this.startTime = 0;
                 if (this.audio) {
                     this.audio.pause();
                     this.audio = null;
@@ -974,10 +977,21 @@ if (Meteor.isClient) {
 
         scWidget.bind(SC.Widget.Events.READY, function() {
             log('[SC.READY]');
+
             scWidget.bind(SC.Widget.Events.PLAY, function() {
                 log('[SC.PLAY]');
                 viewer.fadeInWidget();
-                $('body').removeClass('paused-sc');
+
+                var $body = $('body');
+                if ($body.hasClass('paused-sc')) {
+                    $body.removeClass('paused-sc');
+                    seekWidget(viewer.startTime); // need to handle seek-to for mobile
+                }
+            });
+
+            scWidget.bind(SC.Widget.Events.PLAY_PROGRESS, function() {
+                // HACK - ugh.. in mobile version play doesn't work on
+                // but somehow binding an event here makes it happen...
             });
 
             scWidget.bind(SC.Widget.Events.FINISH, tryNext);
