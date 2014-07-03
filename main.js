@@ -1009,7 +1009,9 @@ if (Meteor.isServer) {
             return null;
         }
 
-        var query = {},
+        var query = {
+                inactive: {$ne: true}
+            },
             sort = sortTypeSorts[sortType] || sortTypeSorts._,
             options = {
                 limit: pairsLimit,
@@ -1038,7 +1040,7 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('pair', function(pairId) {
-        return Pairs.find({_id: pairId});
+        return Pairs.find({_id: pairId, inactive: {$ne: true}});
     });
 
     Meteor.publish('prevPair', function(curCreated, curScore, sortType, viewUserId) {
