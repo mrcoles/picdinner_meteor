@@ -274,6 +274,10 @@ if (Meteor.isClient) {
         return Session.get('formNoImage');
     };
 
+    Template.addPair.formNoAudio = function() {
+        return Session.get('formNoAudio');
+    };
+
     Template.addPair.errorMessage = function() {
         return Session.get('formErrorMessage');
     };
@@ -289,22 +293,31 @@ if (Meteor.isClient) {
                 $image = $form.find('input[name=image]'),
                 $audio = $form.find('input[name=audio]'),
                 $startTime = $form.find('input[name=startTime]'),
-                image = $image.val(),
-                audio = $audio.val(),
-                startTime = parseFloat($startTime.val());
+                image = $.trim($image.val()),
+                audio = $.trim($audio.val()),
+                startTime = parseFloat($startTime.val()),
+                hasError = false;
 
             if ($form.hasClass('loading')) {
                 return;
             }
             $form.addClass('loading');
 
-            if (!audio) { audio = 'song.mp3'; }
-
             if (isNaN(startTime) || startTime < 0) { startTime = 0; }
+
+            if (!audio) {
+                Session.set('formNoAudio', true);
+                hasError = true;
+                // audio = 'song.mp3'; - no more default song!
+            }
 
             if (!image) {
                 Session.set('formNoImage', true);
                 //TODO - maybe this should be part of allow/deny instead?
+                hasError = true;
+            }
+
+            if (hasError) {
                 return;
             }
 
@@ -336,6 +349,7 @@ if (Meteor.isClient) {
                     $form.find('input').val('');
                     Session.set('formErrorMessage', null);
                     Session.set('formNoImage', false);
+                    Session.set('formNoAudio', false);
                     Session.set('currentPairId', _id);
                     Session.set('sortType', 'newest');
                     Paginator.reset();
@@ -1010,7 +1024,8 @@ if (Meteor.isServer) {
         }
 
         var query = {
-                inactive: {$ne: true}
+                inactive: {$ne: true},
+                audio: {$ne: 'song.mp3'}
             },
             sort = sortTypeSorts[sortType] || sortTypeSorts._,
             options = {

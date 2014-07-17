@@ -135,7 +135,7 @@
             <p>
                 Link directly to any picture—maybe something from
                 <a href="http://reddit.com/r/gifs" target="_blank">r/gifs</a> or
-                <a href="http://reddit.com/r/woahdude" target="_blank">r/woahdude</a> or
+                <a href="http://reddit.com/r/perfectLoops" target="_blank">r/perfectLoops</a> or
                 <a href="http://imgur.com/">imgur</a>…
             </p>
             {{#if formNoImage}}<div class="text-error">This field is required.</div>{{/if}}
@@ -147,7 +147,8 @@
                 <a href="https://soundcloud.com/" target="_blank">soundcloud</a>
                 or enter nothing and use the default song!
             </p>
-            <input class="input-block-level" type="text" name="audio" placeholder="URL for a song on soundcloud (optional)">
+            {{#if formNoAudio}}<div class="text-error">This field is required.</div>{{/if}}
+            <input class="input-block-level" type="text" name="audio" placeholder="URL for a song on soundcloud">
             <br><br>
 
             <div class="clearfix inline-input">
