@@ -54,7 +54,7 @@ def main(password):
 
     pairs = db.pairs.find({
         'audio': {'$ne': 'song.mp3'},
-        'inactive': {'$ne': False}
+        'inactive': {'$ne': True}
     })
     matches = []
 
@@ -75,6 +75,9 @@ def main(password):
                 '$set': {
                     'inactive': True
                 }
+            },
+            {
+                'multi': True
             }
         )
         print('Done!')

@@ -90,11 +90,18 @@ var sortTypeSorts = {
     top: {'score': -1}
 };
 
+function basePairsQuery() {
+    return {
+        inactive: {$ne: true},
+        audio: {$ne: 'song.mp3'}
+    };
+}
+
 function lookupNext(curCreated, curScore, sortType, viewUserId, prev, asFind) {
     if (!curCreated) return null;
     curScore = curScore || 0;
 
-    var query = {};
+    var query = basePairsQuery();
     if (sortType == 'top') {
         query.score = prev ? {'$gt': curScore} : {'$lt': curScore};
     } else {
@@ -1023,10 +1030,7 @@ if (Meteor.isServer) {
             return null;
         }
 
-        var query = {
-                inactive: {$ne: true},
-                audio: {$ne: 'song.mp3'}
-            },
+        var query = basePairsQuery(),
             sort = sortTypeSorts[sortType] || sortTypeSorts._,
             options = {
                 limit: pairsLimit,
