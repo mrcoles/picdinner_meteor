@@ -12,6 +12,7 @@ import requests
 import subprocess
 import os
 import pprint
+import sys
 
 MONGO_SITE = 'picdinner.com'
 MONGO_DB_NAME = 'picdinner_com'
@@ -59,28 +60,39 @@ def main(password):
     matches = []
 
     for pair in pairs:
-        r = requests.get(pair.get('audio'))
-        if r.status_code == 404:
+        error = False
+        try:
+            r = requests.get(pair.get('audio'))
+        except requests.exceptions.MissingSchema:
+            error = True
+        else:
+            if r.status_code == 404:
+                error = True
+
+        if error:
             matches.append(pair)
             pprint.pprint(pair)
             print()
+            sys.stdout.flush()
 
-    if yes_no():
-        ids = [m['_id'] for m in matches]
-        db.pairs.update(
-            {
-                '_id': {'$in': ids}
-            },
-            {
-                '$set': {
-                    'inactive': True
-                }
-            },
-            {
-                'multi': True
-            }
-        )
-        print('Done!')
+    if matches:
+        if yes_no():
+            ids = [m['_id'] for m in matches]
+            db.pairs.update(
+                {
+                    '_id': {'$in': ids}
+                },
+                {
+                    '$set': {
+                        'inactive': True
+                    }
+                },
+                multi=True,
+                upsert=False,
+            )
+            print('Done!')
+    else:
+        print('Nothing to update!')
 
 
 
